@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useStore } from '../store/useStore'
@@ -13,7 +13,10 @@ import {
   LineChart as ChartIcon, 
   Shield, 
   Award,
-  Wallet
+  Wallet,
+  RefreshCw,
+  AlertTriangle,
+  X
 } from 'lucide-react'
 import {
   AreaChart,
@@ -74,7 +77,20 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { userProfile, financialTwin, mastery, completedScenarios, decisionHistory } = useStore()
+  const { userProfile, financialTwin, mastery, completedScenarios, decisionHistory, purgeStore } = useStore()
+  const [showResetModal, setShowResetModal] = useState(false)
+
+  // Scroll lock when modal is open
+  useEffect(() => {
+    if (showResetModal) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showResetModal])
 
   const formatMoney = (n: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
@@ -141,8 +157,55 @@ export default function Dashboard() {
         </div>
         <div className="nav-links">
           <span className="nav-greeting">Welcome back, {userProfile.name}</span>
+          <button 
+            className="btn-reset-timeline"
+            onClick={() => setShowResetModal(true)}
+            title="Reset Timeline"
+          >
+            <RefreshCw size={18} />
+          </button>
         </div>
       </nav>
+
+      {showResetModal && (
+        <div className="modal-overlay" onClick={() => setShowResetModal(false)}>
+          <motion.div 
+            className="modal-content reset-warning-modal"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className="modal-close" onClick={() => setShowResetModal(false)}>
+              <X size={20} />
+            </button>
+            
+            <div className="modal-header-icon reset-icon">
+              <AlertTriangle size={32} />
+            </div>
+            
+            <h2>Reset Financial Timeline?</h2>
+            <p>
+              This action is <strong>irreversible</strong>. You will lose your current Financial Twin, 
+              decision history, and mastery progress. You will need to re-onboard to start a new timeline.
+            </p>
+            
+            <div className="modal-actions">
+              <button className="btn-secondary" onClick={() => setShowResetModal(false)}>
+                Cancel
+              </button>
+              <button 
+                className="btn-danger" 
+                onClick={() => {
+                  purgeStore()
+                  navigate('/landing')
+                }}
+              >
+                Reset Everything
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       <div className="dashboard-content">
         <motion.div

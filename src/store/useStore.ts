@@ -70,6 +70,8 @@ interface AppState {
 
   soundEnabled: boolean
   setSoundEnabled: (enabled: boolean) => void
+
+  purgeStore: () => void
 }
 
 const defaultOnboarding: OnboardingData = {
@@ -224,6 +226,22 @@ export const useStore = create<AppState>()(
 
       soundEnabled: true,
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
+
+      purgeStore: () => {
+        localStorage.removeItem('praxis-store')
+        set({
+          userProfile: null,
+          financialTwin: null,
+          activeScenario: null,
+          currentDecisionNode: null,
+          councilDeliberation: null,
+          simulation: { ...defaultSimulation },
+          mastery: { ...defaultMastery },
+          decisionHistory: [],
+          completedScenarios: [],
+          currentView: 'landing'
+        })
+      },
     }),
     {
       name: 'praxis-store',
