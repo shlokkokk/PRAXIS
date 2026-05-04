@@ -1,0 +1,223 @@
+# PRAXIS — Financial Life Simulator & AI Council
+
+## Implementation Plan
+
+---
+
+## Overview
+
+Building PRAXIS as a **full-stack web application** — a Financial Life Simulator where users create a "Financial Twin," navigate realistic financial scenarios, and watch a council of specialized AI agents debate their decisions in real-time, all visualized in an immersive 3D financial universe.
+
+## Key Architectural Decisions (Deviations from Blueprint)
+
+### 1. Vite + React instead of Next.js
+**Rationale:** The blueprint suggests Next.js 15, but PRAXIS is fundamentally a **client-heavy, interactive simulation app**, not a content-heavy SSR site. Vite gives us:
+- Faster dev builds (instant HMR)
+- Simpler deployment (static site + API)
+- No SSR complexity fighting against Three.js/WebGPU client-side rendering
+- Cleaner separation between frontend and backend
+
+### 2. Single Python Backend (FastAPI) — No Monorepo
+**Rationale:** For hackathon velocity and maintainability, a clean two-tier architecture (Vite frontend + FastAPI backend) deployed separately is better than a Turborepo monorepo. Less config overhead, faster iteration.
+
+### 3. SQLite instead of PostgreSQL + TimescaleDB
+**Rationale:** For the MVP scope (hackathon), SQLite with JSON columns handles everything we need. No database server to manage, deploy, or pay for. Easy to migrate later.
+
+### 4. Embedded Historical Data + Smart Caching
+**Rationale:** Instead of requiring live API keys for every user to run the app, we'll ship with curated historical datasets (S&P 500 returns, CPI data, salary ranges, etc.) baked into the app. Live APIs (FRED, Alpha Vantage) are optional enhancements that the user can plug in via environment variables.
+
+### 5. CSS Custom Properties + Vanilla CSS over Tailwind
+**Rationale:** Per the coding standards — Vanilla CSS with a robust design system for maximum control over the premium, immersive aesthetic.
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Why |
+|---|---|---|
+| **Frontend** | Vite + React 19 + TypeScript | Fast, modern, client-side focused |
+| **3D Engine** | Three.js (latest) + WebGPURenderer | Immersive galaxy visualization with WebGL fallback |
+| **State** | Zustand | Lightweight, perfect for simulation state |
+| **Styling** | Vanilla CSS + CSS custom properties | Premium design system, full control |
+| **Animations** | Framer Motion + CSS animations | Micro-interactions, page transitions |
+| **Backend** | Python FastAPI + Uvicorn | AI orchestration, simulation engine |
+| **AI** | Groq API (Llama 3.3 70B / Mixtral) | Fast inference, free tier available, multi-agent debate |
+| **Database** | SQLite + JSON columns | Zero-config, portable, sufficient for MVP |
+| **Market Data** | Curated historical datasets + optional FRED API | Works offline, enhanced with live data |
+| **Auth** | Session-based (simple) | No external dependency, fast onboarding |
+
+> [!IMPORTANT]
+> **AI Provider Choice:** The blueprint suggests Claude/GPT-4o which require paid API keys. I'm designing the system to work with **Groq API** (free tier, fast inference) as the default, with a pluggable provider interface so you can swap in Claude/OpenAI later. You already have experience with Groq from your KAVACH project.
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **API Keys Needed:** You'll need to get a **Groq API key** (free at console.groq.com) for the AI Council to work. I'll also optionally support FRED API key for live economic data. I'll document everything you need in a `TODO.md`.
+
+> [!WARNING]
+> **Scope Decision:** The blueprint has ~30 features. For a working, polished product by June 1, I'm prioritizing:
+> 1. ✅ Stunning onboarding wizard (Financial Twin Genesis)
+> 2. ✅ Full AI Council deliberation system (3 agents with debate)
+> 3. ✅ 3 pre-built scenarios with AI variation
+> 4. ✅ 3D Galaxy visualization with WebGPU
+> 5. ✅ Time scrubber + parallel timeline preview
+> 6. ✅ Financial Mastery scoring + decision history dashboard
+> 7. ❌ Plaid bank linking (post-hackathon)
+> 8. ❌ Multiplayer/classroom mode (post-hackathon)
+> 9. ❌ Real-time live market data streaming (post-hackathon — using curated historical data instead)
+> 
+> Does this prioritization work for you?
+
+---
+
+## Open Questions
+
+> [!IMPORTANT]
+> 1. **AI Provider:** Are you okay with Groq as the default AI provider? You can always add Claude/OpenAI API keys later — the architecture supports swapping providers.
+> 2. **Deployment:** Do you want me to set up deployment configs for Vercel (frontend) + Railway/Render (backend), or are you running this locally for the hackathon demo?
+> 3. **WebGPU vs Canvas 2D fallback:** The 3D galaxy is a killer feature but complex. Should I also build a beautiful 2D fallback for the visualization that works everywhere, or go all-in on 3D?
+
+---
+
+## Proposed Changes
+
+### Component 1: Project Foundation
+
+#### [NEW] `package.json` + Vite config
+- Initialize Vite + React + TypeScript project
+- Configure path aliases, dev server, build
+
+#### [NEW] `requirements.txt` + FastAPI setup  
+- Python backend with FastAPI, uvicorn, groq SDK, pydantic
+
+#### [NEW] Design system (`src/styles/`)
+- CSS custom properties: color palette (deep space theme — navy/violet/cyan/gold), typography (Inter + JetBrains Mono), spacing scale
+- Glassmorphism utilities, gradient definitions, animation keyframes
+- Responsive breakpoints
+
+---
+
+### Component 2: Onboarding Wizard (Financial Twin Genesis)
+
+#### [NEW] `src/components/onboarding/` (5 screens)
+1. **Welcome Screen** — Animated manifesto with particle background, "Begin Your Financial Life" CTA
+2. **Identity Screen** — Age, location (dropdown), career aspiration, current savings (slider)
+3. **Money Personality Quiz** — 5 behavioral questions with beautiful card-flip UI (loss tolerance, delayed gratification, risk comfort, research patience, automation comfort)
+4. **Twin Generation** — Cinematic loading screen showing data streams constructing the twin (WebGPU particles forming a human silhouette)
+5. **Twin Ready** — Summary card with personality breakdown + first scenario auto-loads
+
+Each screen uses smooth page transitions (Framer Motion), progress indicator, and works like a premium product walkthrough.
+
+---
+
+### Component 3: AI Council Deliberation System
+
+#### [NEW] Backend: `api/agents/` (Multi-Agent System)
+- **AgentBase** class with pluggable LLM provider interface
+- **Conservator Agent** — Security-first financial advisor (system prompt, analysis tools)
+- **Grower Agent** — Long-term wealth builder (compound interest calculator, historical market data access)
+- **Behaviorist Agent** — Behavioral economist (bias detection, nudge recommendations)
+- **Synthesizer** — Combines opinions, extracts disagreements, generates final recommendation
+- **Deliberation Protocol:**
+  1. Phase 1: Independent parallel analysis
+  2. Phase 2: Cross-examination (each agent sees and rebuts others)
+  3. Phase 3: Synthesis with conflict preservation
+
+#### [NEW] Frontend: `src/components/council/`
+- **CouncilPanel** — Split-panel layout showing 3 agent cards
+- **AgentCard** — Avatar, name, role badge, streaming argument text with typing animation
+- **DebateTimeline** — Visual progress bar: Analysis → Rebuttal → Synthesis
+- **ConflictHighlight** — Visual diff showing where agents disagree
+- **ConsensusCard** — Final recommendation with confidence score and trade-off acknowledgments
+
+---
+
+### Component 4: Scenario Engine
+
+#### [NEW] Backend: `api/simulation/`
+- **ScenarioManager** — Loads scenario templates, injects user context
+- **TimelineEngine** — Generates year-by-year financial projections with compound math
+- **DecisionNode** — Represents a choice point with options, consequences, and council trigger
+- **ConsequenceCalculator** — Real math: compound interest, tax brackets, inflation adjustment, debt amortization
+
+#### [NEW] Scenarios (data-driven, not hardcoded):
+- **Scenario A: "The First Paycheck"** — First job decisions (401k, emergency fund, rent budget, debt payoff)
+- **Scenario B: "The Market Crash"** — Portfolio hit -30%, emotional decision under pressure
+- **Scenario C: "The Windfall"** — $10K inheritance, multiple allocation strategies
+- **AI Variation Engine** — Randomizes amounts, timing, market conditions per run
+
+#### [NEW] Frontend: `src/components/scenario/`
+- **ScenarioHeader** — Current date, scenario title, progress
+- **DecisionInterface** — Beautiful option cards with preview calculations
+- **TimeAccelerator** — Animated fast-forward showing consequences unfold
+- **RegretArchitecture** — Post-decision comparison: your choice vs. council recommendation vs. optimal path vs. parallel timeline
+
+---
+
+### Component 5: 3D Financial Universe (WebGPU Galaxy)
+
+#### [NEW] `src/lib/galaxy/`
+- **GalaxyScene** — Main Three.js scene with WebGPU renderer (WebGL fallback)
+- **AssetNodes** — Different visual representations per asset class:
+  - Cash = golden pulsing star
+  - Stocks = blue-white orbiting orbs (speed = volatility)
+  - Bonds = green stable rings
+  - Debt = red gravity wells with vortex effect
+  - Crypto = purple erratic comets
+- **ParticleSystem** — 50K-100K particles representing market history (WebGPU compute if available, instanced mesh fallback)
+- **PortfolioConstellation** — User's holdings as connected star pattern
+- **TimeScrubber** — Drag to scrub through years; galaxy morphs in real-time
+- **RiskStorm** — Visual market crash effects (particles scatter, orbits destabilize)
+- **ParallelTimelines** — "See the Future" splits galaxy into 4 orbital trails
+
+#### [NEW] `src/components/GalaxyView.tsx`
+- React wrapper for Three.js scene
+- Responsive canvas sizing
+- Loading states with shimmer
+- Tooltip overlays for hovering on nodes (HTML overlay on 3D)
+
+---
+
+### Component 6: Dashboard & Scoring
+
+#### [NEW] `src/components/dashboard/`
+- **FinancialMasteryScore** — Animated radial progress gauge (0-1000)
+- **DecisionHistory** — Timeline of past decisions with outcomes
+- **SkillRadar** — Radar chart showing competency areas (budgeting, investing, debt management, behavioral awareness, tax optimization)
+- **ScenarioSelector** — Beautiful card grid to start new scenarios
+- **TwinProfile** — Your financial twin's current state summary
+
+---
+
+### Component 7: App Shell & Navigation
+
+#### [NEW] `src/App.tsx` + routing
+- React Router with animated page transitions
+- **Landing page** — Cinematic intro with galaxy background
+- **Onboarding flow** — Wizard pages
+- **Simulation view** — Main gameplay: galaxy + council + decisions
+- **Dashboard** — Between-scenario hub
+- **Settings** — API key config, theme, sound toggles
+
+---
+
+## Verification Plan
+
+### Automated Tests
+- Backend: `pytest` for simulation math (compound interest, tax brackets, consequence calculations)
+- Frontend: Manual browser testing via the browser tool
+
+### Manual Verification
+1. Complete full onboarding flow → verify twin generation
+2. Play through all 3 scenarios → verify AI council deliberation works
+3. Verify 3D galaxy renders and responds to simulation state
+4. Test time scrubber, parallel timelines, risk storm effects
+5. Check responsive design on mobile viewport
+6. Verify "See the Future" preview renders correctly
+7. Test with and without API keys (graceful degradation)
+
+### Browser Testing
+- Run dev server and test full user flow end-to-end
+- Screenshot key states for walkthrough

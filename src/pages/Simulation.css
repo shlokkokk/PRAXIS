@@ -1,0 +1,121 @@
+.simulation {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-void);
+  position: relative;
+}
+
+.sim-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-8);
+  background: rgba(5, 5, 16, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+}
+
+.sim-nav-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.sim-scenario-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.05em;
+}
+
+.sim-time {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.sim-progress {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.sim-content {
+  flex: 1;
+  padding: calc(80px + var(--space-8)) var(--space-8) var(--space-8);
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-decision-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: var(--space-6);
+  flex: 1;
+  align-items: start;
+}
+
+.sim-main-panel {
+  min-height: 0;
+}
+
+.sim-council-panel {
+  position: sticky;
+  top: calc(60px + var(--space-4));
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+.sim-complete {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.complete-content {
+  text-align: center;
+  max-width: 500px;
+}
+
+.complete-content h2 {
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  margin-bottom: var(--space-4);
+}
+
+.complete-content p {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+@media (max-width: 1024px) {
+  .sim-decision-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-council-panel {
+    position: relative;
+    top: 0;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .sim-nav {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .sim-content {
+    padding: calc(56px + var(--space-2)) var(--space-3) var(--space-3);
+  }
+}

@@ -1,0 +1,84 @@
+.galaxy-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: #020205; /* Deep void background specifically for 3D */
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.1) inset;
+}
+
+.galaxy-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-4);
+  z-index: 10;
+}
+
+.galaxy-legend {
+  display: flex;
+  gap: var(--space-4);
+  background: rgba(5, 5, 16, 0.6);
+  backdrop-filter: blur(10px);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  align-self: flex-start;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.legend-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-item .dot.core { background: #8b5cf6; box-shadow: 0 0 8px #8b5cf6; }
+.legend-item .dot.cash { background: #10b981; box-shadow: 0 0 8px #10b981; }
+.legend-item .dot.investment { background: #06b6d4; box-shadow: 0 0 8px #06b6d4; }
+.legend-item .dot.debt { background: #f43f5e; box-shadow: 0 0 8px #f43f5e; }
+
+.galaxy-controls-hint {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  background: rgba(5, 5, 16, 0.6);
+  backdrop-filter: blur(10px);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  animation: pulseOpacity 3s infinite;
+}
+
+@keyframes pulseOpacity {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .galaxy-container {
+    height: 300px;
+  }
+  .galaxy-legend {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+}
