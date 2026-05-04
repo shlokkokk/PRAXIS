@@ -22,7 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-PRAXIS_INTERNAL_SECRETS.md
+internal_docs/
 api/.env
 scratch/
 api/venv/
@@ -32,4 +32,3 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
-TODO.md
