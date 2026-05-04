@@ -36,6 +36,7 @@ import {
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
+  PolarRadiusAxis
 } from 'recharts'
 import ParticleField from '../components/ParticleField'
 import GalaxyView from '../components/galaxy/GalaxyView'
@@ -121,10 +122,11 @@ const ARCHETYPE_INFO: Record<string, { icon: React.ReactNode; label: string; des
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { userProfile, financialTwin, mastery, completedScenarios, decisionHistory, purgeStore, soundEnabled, setSoundEnabled, showGalaxy, setShowGalaxy } = useStore()
+  const { userProfile, financialTwin, mastery, updateMastery, completedScenarios, decisionHistory, purgeStore, soundEnabled, setSoundEnabled, showGalaxy, setShowGalaxy } = useStore()
   const [showResetModal, setShowResetModal] = useState(false)
   const [serverLive, setServerLive] = useState(false)
-  const { data: marketData, loading: marketLoading } = useMarketData()
+  const [tickerCooldown, setTickerCooldown] = useState(false)
+  const { data: marketData, loading: marketLoading, refresh: refreshMarket, isRefreshing: marketRefreshing } = useMarketData()
 
   useEffect(() => {
     audio.init()
@@ -145,6 +147,15 @@ export default function Dashboard() {
     const interval = setInterval(checkServer, 10000)
     return () => clearInterval(interval)
   }, [])
+
+  // Self-healing: Recalibrate Mastery if state is corrupted (e.g. score > 100)
+  useEffect(() => {
+    if (mastery.overallScore > 100 || (mastery.overallScore > 0 && Object.values(mastery.categories).every(v => v === 0))) {
+      const cats = Object.values(mastery.categories)
+      const actualAverage = Math.round(cats.reduce((a, b) => a + b, 0) / 6)
+      updateMastery({ overallScore: Math.min(100, actualAverage) })
+    }
+  }, [mastery, updateMastery])
 
   // Scroll lock when modal is open
   useEffect(() => {
@@ -398,12 +409,46 @@ export default function Dashboard() {
                       <span style={{ color: 'var(--color-rose)' }}>{marketData.inflation.toFixed(1)}%</span>
                     </div>
                   )}
-                  {marketData.isLive && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto', color: 'var(--color-emerald)', fontSize: '10px' }}>
-                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-emerald)', boxShadow: '0 0 8px var(--color-emerald)' }} />
-                      LIVE
-                    </div>
-                  )}
+                  
+                  <div className="ticker-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                    {marketData.isLive && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-emerald)', fontSize: '10px' }}>
+                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-emerald)', boxShadow: '0 0 8px var(--color-emerald)' }} />
+                        LIVE
+                      </div>
+                    )}
+                    
+                    <button 
+                      className={`btn-ticker-refresh ${tickerCooldown ? 'cooldown' : ''}`}
+                      onClick={() => {
+                        const success = refreshMarket()
+                        if (!success) {
+                          setTickerCooldown(true)
+                          setTimeout(() => setTickerCooldown(false), 2000)
+                        } else {
+                          audio.playClick()
+                        }
+                      }}
+                      onMouseEnter={() => audio.playHover()}
+                      disabled={marketRefreshing}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: tickerCooldown ? 'var(--color-rose)' : 'var(--color-text-tertiary)',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '10px',
+                        transition: 'all 0.2s ease',
+                        opacity: marketRefreshing ? 0.5 : 1
+                      }}
+                    >
+                      <RefreshCw size={12} className={marketRefreshing ? 'spin' : ''} style={{ animation: marketRefreshing ? 'spin 1s linear infinite' : 'none' }} />
+                      {tickerCooldown ? 'COOLING DOWN...' : 'SYNC'}
+                    </button>
+                  </div>
                 </>
               )}
             </motion.div>
@@ -619,22 +664,64 @@ export default function Dashboard() {
               </div>
               <div className="chart-container" style={{ display: 'flex', justifyContent: 'center' }}>
                 <ResponsiveContainer width="100%" height={250}>
-                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={masteryData}>
-                    <PolarGrid stroke="var(--color-border)" />
+                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={masteryData}>
+                    <defs>
+                      <linearGradient id="masteryGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-cyan)" stopOpacity={0.6}/>
+                        <stop offset="95%" stopColor="var(--color-cyan)" stopOpacity={0.1}/>
+                      </linearGradient>
+                      <filter id="radarGlow">
+                        <feGaussianBlur stdDeviation="2" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                      <linearGradient id="scanGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="var(--color-cyan)" stopOpacity="0" />
+                        <stop offset="100%" stopColor="var(--color-cyan)" stopOpacity="0.1" />
+                      </linearGradient>
+                    </defs>
+                    <PolarGrid gridType="circle" stroke="rgba(255,255,255,0.1)" strokeDasharray="4 4" />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                     <PolarAngleAxis 
                       dataKey="subject" 
-                      stroke="var(--color-text-secondary)" 
+                      stroke="var(--color-text-tertiary)" 
                       fontSize={10}
+                      tick={{ fill: 'var(--color-text-tertiary)', fontWeight: 700, letterSpacing: '0.05em' }}
                     />
+                    
+                    {/* Ghost Boundary */}
+                    <Radar
+                      dataKey="fullMark"
+                      stroke="rgba(139, 92, 246, 0.15)"
+                      strokeWidth={1}
+                      fill="rgba(139, 92, 246, 0.03)"
+                      fillOpacity={1}
+                      isAnimationActive={false}
+                    />
+
+                    {/* Main Data Radar */}
                     <Radar
                       name="Mastery"
                       dataKey="A"
                       stroke="var(--color-cyan)"
-                      fill="var(--color-cyan)"
-                      fillOpacity={0.2}
+                      strokeWidth={3}
+                      fill="url(#masteryGradient)"
+                      fillOpacity={1}
+                      animationDuration={2500}
+                      animationEasing="ease-out"
+                      dot={{ r: 4, fill: 'var(--color-cyan)', stroke: '#fff', strokeWidth: 2, filter: 'url(#radarGlow)' }}
                     />
+
                   </RadarChart>
                 </ResponsiveContainer>
+
+                {/* Tactical Sonar Overlay (Guaranteed Centering) */}
+                <div className="sonar-overlay">
+                  <motion.div
+                    className="sonar-beam"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                  />
+                </div>
               </div>
               <div className="chart-footer">
                 <span className="conflict-tag">Overall Mastery Score: {mastery.overallScore}/100</span>

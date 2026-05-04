@@ -227,9 +227,10 @@ export const useStore = create<AppState>()(
             }
           } : null;
 
-          const newOverallMastery = Math.round(
-            Object.values(newCategories).reduce((a, b) => a + b, 0) / Object.values(newCategories).length
-          )
+          const categoriesArray = Object.values(newCategories)
+          const newOverallMastery = Math.min(100, Math.round(
+            categoriesArray.reduce((a, b) => a + b, 0) / 6
+          ))
 
           return { 
             decisionHistory: [...s.decisionHistory, outcome],
@@ -264,7 +265,6 @@ export const useStore = create<AppState>()(
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
 
       purgeStore: () => {
-        localStorage.removeItem('praxis-store')
         set({
           userProfile: null,
           financialTwin: null,
@@ -273,10 +273,12 @@ export const useStore = create<AppState>()(
           councilDeliberation: null,
           simulation: { ...defaultSimulation },
           mastery: { ...defaultMastery },
+          onboarding: { ...defaultOnboarding },
           decisionHistory: [],
           completedScenarios: [],
           currentView: 'landing'
         })
+        localStorage.removeItem('praxis-store')
       },
     }),
     {

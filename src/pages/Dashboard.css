@@ -702,10 +702,20 @@
   transition: all 0.2s ease;
 }
 
+.view-toggle-pill button:not(.active):hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+}
+
 .view-toggle-pill button.active {
   background: rgba(139, 92, 246, 0.15);
   color: var(--color-cyan);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.view-toggle-pill button:active {
+  transform: scale(0.96);
 }
 
 .identity-viewport {
@@ -912,5 +922,91 @@
 
 .dna-grid {
   grid-template-columns: 1.2fr 0.8fr !important;
+}
+
+/* Ticker Refresh Button & View Toggle Polish */
+.btn-ticker-refresh {
+  position: relative;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 4px 10px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-ticker-refresh:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: var(--color-text-primary) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-ticker-refresh:active:not(:disabled) {
+  transform: translateY(0) scale(0.95);
+}
+
+.btn-ticker-refresh.cooldown {
+  border-color: rgba(244, 63, 94, 0.3) !important;
+  background: rgba(244, 63, 94, 0.05) !important;
+  color: var(--color-rose) !important;
+}
+
+.view-toggle-pill {
+  padding: 4px !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.view-toggle-pill button:not(.active):hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+}
+
+.view-toggle-pill button.active {
+  background: rgba(139, 92, 246, 0.25) !important;
+  color: var(--color-cyan) !important;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2) !important;
+  border: 1px solid rgba(139, 92, 246, 0.4) !important;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Sonar Scan Overlay */
+.chart-container {
+  position: relative; /* Ensure parent is relative */
+}
+
+.sonar-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* Let clicks pass through to chart */
+  z-index: 1;
+}
+
+.sonar-beam {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(34, 211, 238, 0.15) 0deg,
+    rgba(34, 211, 238, 0) 60deg
+  );
+  mask: radial-gradient(circle at center, transparent 0%, black 100%);
+  -webkit-mask: radial-gradient(circle at center, transparent 0%, black 100%);
+  border-left: 1px solid rgba(34, 211, 238, 0.3);
 }
 

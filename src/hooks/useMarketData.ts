@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 const AV_KEY = 'IFA9SY7DHQTY0LMN'
 const CACHE_KEY = 'praxis-market-cache'
@@ -56,48 +56,64 @@ export function useMarketData() {
     sp500: null, btc: null, fedRate: null, inflation: null, lastUpdated: null, isLive: false
   })
   const [loading, setLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
-  useEffect(() => {
-    // Try cache first
-    try {
-      const cached = localStorage.getItem(CACHE_KEY)
-      if (cached) {
-        const parsed: MarketData = JSON.parse(cached)
-        if (parsed.lastUpdated && Date.now() - parsed.lastUpdated < CACHE_MS) {
-          setData(parsed)
-          setLoading(false)
-          return
-        }
-      }
-    } catch { /* ignore */ }
+  const load = useCallback(async (force = false) => {
+    if (isRefreshing) return
 
-    async function load() {
-      setLoading(true)
+    if (!force) {
       try {
-        const [sp500, btc, macro] = await Promise.all([
-          fetchQuote('SPY', 'S&P 500'),
-          fetchQuote('BTC-USD', 'Bitcoin'),
-          fetchMacroData(),
-        ])
-
-        const newData: MarketData = {
-          sp500,
-          btc,
-          fedRate: macro.fedRate,
-          inflation: macro.inflation,
-          lastUpdated: Date.now(),
-          isLive: !!(sp500 || btc),
+        const cached = localStorage.getItem(CACHE_KEY)
+        if (cached) {
+          const parsed: MarketData = JSON.parse(cached)
+          if (parsed.lastUpdated && Date.now() - parsed.lastUpdated < CACHE_MS) {
+            setData(parsed)
+            setLoading(false)
+            return
+          }
         }
-
-        setData(newData)
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(newData)) } catch { /* ignore */ }
-      } finally {
-        setLoading(false)
-      }
+      } catch { /* ignore */ }
     }
 
+    setIsRefreshing(true)
+    if (force) setLoading(true)
+
+    try {
+      const [sp500, btc, macro] = await Promise.all([
+        fetchQuote('SPY', 'S&P 500'),
+        fetchQuote('BTC-USD', 'Bitcoin'),
+        fetchMacroData(),
+      ])
+
+      const newData: MarketData = {
+        sp500,
+        btc,
+        fedRate: macro.fedRate,
+        inflation: macro.inflation,
+        lastUpdated: Date.now(),
+        isLive: !!(sp500 || btc),
+      }
+
+      setData(newData)
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(newData)) } catch { /* ignore */ }
+    } finally {
+      setLoading(false)
+      setIsRefreshing(false)
+    }
+  }, [isRefreshing])
+
+  useEffect(() => {
     load()
   }, [])
 
-  return { data, loading }
+  const refresh = useCallback(() => {
+    const timeSinceLast = data.lastUpdated ? Date.now() - data.lastUpdated : Infinity
+    if (timeSinceLast < 60000) {
+      return false
+    }
+    load(true)
+    return true
+  }, [data.lastUpdated, load])
+
+  return { data, loading, refresh, isRefreshing }
 }
