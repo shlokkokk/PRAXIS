@@ -90,8 +90,10 @@ export default function WelcomeStep({ onNext }: Props) {
 
       <p style={{
         fontSize: 'var(--text-xs)',
-        color: 'var(--color-text-tertiary)',
+        color: 'var(--color-text-secondary)',
+        fontWeight: 500,
         marginTop: 'var(--space-4)',
+        opacity: 0.8
       }}>
         Takes about 3 minutes · No account needed · Your data stays local
       </p>
