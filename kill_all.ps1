@@ -4,8 +4,13 @@ Write-Host "==========================================" -ForegroundColor Red
 Write-Host ""
 
 Write-Host "1) Closing the PowerShell windows..." -ForegroundColor Yellow
-Get-Process | Where-Object { $_.MainWindowTitle -match "PRAXIS-Frontend" -or $_.MainWindowTitle -match "PRAXIS-Backend" } | Stop-Process -Force -ErrorAction SilentlyContinue
-Write-Host "-> Windows closed." -ForegroundColor Green
+# More robust window killing by checking for title fragments
+Get-Process | Where-Object { 
+    $_.MainWindowTitle -like "*PRAXIS-Frontend*" -or 
+    $_.MainWindowTitle -like "*PRAXIS-Backend*" -or 
+    $_.MainWindowTitle -like "*Praxis Financial Simulator*" 
+} | Stop-Process -Force -ErrorAction SilentlyContinue
+Write-Host "-> Target windows signaled to close." -ForegroundColor Green
 
 Write-Host "2) Deep-cleaning processes on ports..." -ForegroundColor Yellow
 function Kill-ProcessByPort($port) {
