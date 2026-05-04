@@ -8,6 +8,7 @@ import TimelineBar from '../components/simulation/TimelineBar'
 import ScenarioIntro from '../components/simulation/ScenarioIntro'
 import OutcomeReveal from '../components/simulation/OutcomeReveal'
 import { getScenario, type ScenarioData } from '../data/scenarios'
+import { audio } from '../utils/audio'
 import './Simulation.css'
 
 type SimPhase = 'intro' | 'decision' | 'council' | 'choosing' | 'outcome' | 'complete'
@@ -18,7 +19,6 @@ export default function Simulation() {
   const {
     userProfile,
     financialTwin,
-    simulation,
     updateSimulation,
     councilDeliberation,
     setCouncilDeliberation,
@@ -26,7 +26,6 @@ export default function Simulation() {
     setCouncilLoading,
     addDecisionOutcome,
     addCompletedScenario,
-    setCurrentDecisionNode,
   } = useStore()
 
   const [phase, setPhase] = useState<SimPhase>('intro')
@@ -99,6 +98,7 @@ export default function Simulation() {
   const handleMakeChoice = useCallback((optionId: string) => {
     setSelectedOption(optionId)
     setPhase('outcome')
+    audio.playClick()
 
     if (!currentNode) return
     const option = currentNode.options.find((o) => o.id === optionId)
@@ -113,6 +113,7 @@ export default function Simulation() {
         .map((o) => ({ optionId: o.id, projection: o.projection })),
       lessonsLearned: option.lessons,
       scoreImpact: option.scoreImpact,
+      tags: option.tags, // Pass tags so mastery categories update correctly
     }
 
     addDecisionOutcome(outcome)
@@ -132,6 +133,7 @@ export default function Simulation() {
     setSelectedOption(null)
     setCouncilDeliberation(null)
     setPhase('decision')
+    audio.playClick()
 
     updateSimulation({
       currentYear: scenario.nodes[nextIndex].year,
@@ -149,7 +151,7 @@ export default function Simulation() {
       exit={{ opacity: 0 }}
     >
       <div className="sim-nav">
-        <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>
+        <button className="btn btn-ghost" onClick={() => navigate('/dashboard')} onMouseEnter={() => audio.playHover()}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -250,7 +252,7 @@ export default function Simulation() {
                   Every choice taught you something — whether you realized it or not.
                 </p>
                 <div className="step-actions" style={{ marginTop: 'var(--space-8)' }}>
-                  <button className="btn btn-secondary" onClick={() => navigate('/dashboard')}>
+                  <button className="btn btn-secondary" onClick={() => navigate('/dashboard')} onMouseEnter={() => audio.playHover()}>
                     Back to Dashboard
                   </button>
                   <button className="btn btn-primary" onClick={() => {
@@ -260,7 +262,7 @@ export default function Simulation() {
                     setPhase('intro')
                     const s = getScenario(scenarioId || 'first_paycheck', userProfile!, financialTwin!)
                     setScenario(s)
-                  }}>
+                  }} onMouseEnter={() => audio.playHover()}>
                     Play Again (Different Variations)
                   </button>
                 </div>

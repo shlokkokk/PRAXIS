@@ -1,84 +1,204 @@
 .galaxy-container {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 600px;
   border-radius: var(--radius-2xl);
   overflow: hidden;
-  background: #020205; /* Deep void background specifically for 3D */
+  background: #020205;
   border: 1px solid var(--color-border);
-  box-shadow: 0 0 40px rgba(139, 92, 246, 0.1) inset;
+  box-shadow: 0 0 60px rgba(139, 92, 246, 0.15) inset;
 }
 
-.galaxy-overlay {
+.galaxy-hud {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: var(--space-4);
+  padding: var(--space-6);
   z-index: 10;
+  font-family: var(--font-mono);
+  color: var(--color-text-accent);
 }
 
-.galaxy-legend {
-  display: flex;
-  gap: var(--space-4);
-  background: rgba(5, 5, 16, 0.6);
+.hud-section {
+  position: absolute;
+  padding: var(--space-4);
+  background: rgba(5, 5, 20, 0.4);
   backdrop-filter: blur(10px);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  align-self: flex-start;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.hud-section:hover {
+  background: rgba(5, 5, 20, 0.6);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.top-left { top: var(--space-6); left: var(--space-6); width: 240px; }
+.top-right { top: var(--space-6); right: var(--space-6); width: 200px; }
+.bottom-left { bottom: var(--space-6); left: var(--space-6); }
+.bottom-right { bottom: var(--space-6); right: var(--space-6); text-align: right; }
+
+.active-scan {
+  top: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  text-align: center;
+  border-color: var(--color-cyan);
+  background: rgba(5, 5, 20, 0.8);
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+  animation: slideInDown 0.4s var(--ease-out-expo);
+}
+
+.scan-title {
+  font-size: var(--text-base);
+  font-weight: 800;
+  color: var(--color-cyan);
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+  margin-bottom: 2px;
+}
+
+.scan-subtitle {
+  font-size: 8px;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-2);
+}
+
+.scan-decor {
+  margin-top: var(--space-2);
+}
+
+.decor-line {
+  width: 40px;
+  height: 1px;
+  background: var(--color-cyan);
+  margin: 0 auto 4px;
+}
+
+.decor-dots {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.decor-dots span {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--color-cyan);
+}
+
+.hud-label {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.hud-value {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  margin-bottom: var(--space-3);
+}
+
+.status-active {
+  color: var(--color-emerald);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.hud-health-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  margin-bottom: var(--space-3);
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  background: var(--gradient-brand);
+  box-shadow: 0 0 10px var(--color-violet);
+}
+
+.hud-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+}
+
+.hud-mini-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.stat-name { font-size: 10px; }
+.stat-dots { display: flex; gap: 3px; }
+.stat-dot { width: 6px; height: 6px; border-radius: 1px; background: rgba(255, 255, 255, 0.1); }
+.stat-dot.active { background: var(--color-cyan); box-shadow: 0 0 5px var(--color-cyan); }
+
+.hud-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: var(--text-xs);
+  font-size: 10px;
   color: var(--color-text-secondary);
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
 }
 
-.legend-item .dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
+.legend-item .dot { width: 6px; height: 6px; border-radius: 50%; }
+.legend-item .dot.core { background: var(--color-violet); box-shadow: 0 0 8px var(--color-violet); }
+.legend-item .dot.cash { background: var(--color-emerald); box-shadow: 0 0 8px var(--color-emerald); }
+.legend-item .dot.stocks { background: var(--color-cyan); box-shadow: 0 0 8px var(--color-cyan); }
+.legend-item .dot.debt { background: var(--color-rose); box-shadow: 0 0 8px var(--color-rose); }
 
-.legend-item .dot.core { background: #8b5cf6; box-shadow: 0 0 8px #8b5cf6; }
-.legend-item .dot.cash { background: #10b981; box-shadow: 0 0 8px #10b981; }
-.legend-item .dot.investment { background: #06b6d4; box-shadow: 0 0 8px #06b6d4; }
-.legend-item .dot.debt { background: #f43f5e; box-shadow: 0 0 8px #f43f5e; }
-
-.galaxy-controls-hint {
-  align-self: center;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-xs);
+.hud-coordinates {
+  font-size: 9px;
   color: var(--color-text-tertiary);
-  background: rgba(5, 5, 16, 0.6);
-  backdrop-filter: blur(10px);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-full);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  animation: pulseOpacity 3s infinite;
+  margin-bottom: var(--space-2);
 }
 
-@keyframes pulseOpacity {
-  0%, 100% { opacity: 0.5; }
+.hud-hint {
+  font-size: 10px;
+  color: var(--color-text-accent);
+  animation: pulse 2s infinite;
+}
+
+.hud-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }
 }
 
 @media (max-width: 768px) {
-  .galaxy-container {
-    height: 300px;
-  }
-  .galaxy-legend {
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
+  .galaxy-container { height: 400px; }
+  .hud-section { padding: var(--space-2); }
+  .top-left, .top-right { width: 140px; font-size: 8px; }
+  .hud-stats, .stat-name, .legend-item { font-size: 8px; }
 }

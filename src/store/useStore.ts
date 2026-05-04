@@ -68,6 +68,9 @@ interface AppState {
   showGalaxy: boolean
   setShowGalaxy: (show: boolean) => void
 
+  hoveredElement: { title: string; subtitle: string; value?: string } | null
+  setHoveredElement: (element: { title: string; subtitle: string; value?: string } | null) => void
+
   soundEnabled: boolean
   setSoundEnabled: (enabled: boolean) => void
 
@@ -176,21 +179,43 @@ export const useStore = create<AppState>()(
       decisionHistory: [],
       addDecisionOutcome: (outcome) =>
         set((s) => {
-          // Calculate new stats based on the decision
+          // --- Net Worth Update (use real projection if available) ---
           let newNetWorth = s.financialTwin?.netWorth || 0;
-          let newScore = s.financialTwin?.financialHealth.overallScore || 0;
-          const newEmergencyMonths = s.financialTwin?.financialHealth.emergencyFundMonths || 0;
-          const newDebtRatio = s.financialTwin?.financialHealth.debtToIncomeRatio || 0;
-
-          // Simple logic: parse shortTermResult string for positive/negative impacts (MVP logic)
-          if (outcome.shortTermResult.includes('Increase') || outcome.shortTermResult.includes('+')) {
-            newNetWorth += 1000;
-          } else if (outcome.shortTermResult.includes('Decrease') || outcome.shortTermResult.includes('-')) {
-            newNetWorth -= 500;
+          if (outcome.longTermProjection?.netWorth) {
+            // Blend current net worth toward the 5-year projection a little each decision
+            const projectedDiff = outcome.longTermProjection.netWorth - newNetWorth
+            newNetWorth = newNetWorth + Math.round(projectedDiff * 0.05) // 5% step toward projection
           }
 
+          // --- Health Score ---
+          let newScore = s.financialTwin?.financialHealth.overallScore || 0;
           if (outcome.scoreImpact) {
-             newScore = Math.max(0, Math.min(100, newScore + outcome.scoreImpact));
+            newScore = Math.max(0, Math.min(100, newScore + outcome.scoreImpact));
+          }
+
+          // --- Mastery Category Updates based on decision tags ---
+          const newCategories = { ...s.mastery.categories }
+          const tags = (outcome as any).tags as string[] | undefined
+          
+          if (tags) {
+            if (tags.some(t => ['security', 'foundation', 'emergency-fund', 'debt-free', 'debt-payoff', 'entrepreneurship'].includes(t))) {
+              newCategories.budgeting = Math.min(100, newCategories.budgeting + Math.abs(outcome.scoreImpact || 5))
+            }
+            if (tags.some(t => ['growth', 'compound-interest', 'index-funds', 'lump-sum', 'dca', 'employer-match', 'roth', 'retirement', 'angel-investing', 'startup', 'human-capital', 'career'].includes(t))) {
+              newCategories.investing = Math.min(100, newCategories.investing + Math.abs(outcome.scoreImpact || 5))
+            }
+            if (tags.some(t => ['debt-free', 'debt-payoff'].includes(t))) {
+              newCategories.debtManagement = Math.min(100, newCategories.debtManagement + Math.abs(outcome.scoreImpact || 5))
+            }
+            if (tags.some(t => ['loss-aversion', 'panic-sell', 'hedonic-treadmill', 'psychology', 'stealth-wealth', 'discipline', 'patience', 'lifestyle-inflation'].includes(t))) {
+              newCategories.behavioralAwareness = Math.min(100, newCategories.behavioralAwareness + Math.abs(outcome.scoreImpact || 5))
+            }
+            if (tags.some(t => ['rebalance', 'risk-management', 'diamond-hands', 'consistency', 'high-variance'].includes(t))) {
+              newCategories.riskManagement = Math.min(100, newCategories.riskManagement + Math.abs(outcome.scoreImpact || 5))
+            }
+            if (tags.some(t => ['tax-advantaged', 'roth', 'employer-match', 'tax-free'].includes(t))) {
+              newCategories.taxOptimization = Math.min(100, newCategories.taxOptimization + Math.abs(outcome.scoreImpact || 5))
+            }
           }
 
           const newTwin = s.financialTwin ? {
@@ -199,10 +224,12 @@ export const useStore = create<AppState>()(
             financialHealth: {
               ...s.financialTwin.financialHealth,
               overallScore: newScore,
-              emergencyFundMonths: newEmergencyMonths,
-              debtToIncomeRatio: newDebtRatio,
             }
           } : null;
+
+          const newOverallMastery = Math.round(
+            Object.values(newCategories).reduce((a, b) => a + b, 0) / Object.values(newCategories).length
+          )
 
           return { 
             decisionHistory: [...s.decisionHistory, outcome],
@@ -210,7 +237,8 @@ export const useStore = create<AppState>()(
             mastery: {
               ...s.mastery,
               decisionsCount: s.mastery.decisionsCount + 1,
-              overallScore: Math.max(0, Math.min(1000, s.mastery.overallScore + (outcome.scoreImpact || 0) * 10))
+              overallScore: newOverallMastery,
+              categories: newCategories,
             }
           };
         }),
@@ -219,10 +247,18 @@ export const useStore = create<AppState>()(
       addCompletedScenario: (scenarioId) =>
         set((s) => ({
           completedScenarios: [...s.completedScenarios, scenarioId],
+          mastery: {
+            ...s.mastery,
+            streakDays: s.mastery.streakDays + 1,
+            scenariosCompleted: s.mastery.scenariosCompleted + 1,
+          }
         })),
 
       showGalaxy: true,
       setShowGalaxy: (show) => set({ showGalaxy: show }),
+
+      hoveredElement: null,
+      setHoveredElement: (element) => set({ hoveredElement: element }),
 
       soundEnabled: true,
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
@@ -327,6 +363,8 @@ export function generateFinancialTwin(profile: UserProfile): FinancialTwin {
 
 function generateLifeEvents(profile: UserProfile, years: number): import('../types').LifeEvent[] {
   const events: import('../types').LifeEvent[] = []
+  
+  // Customizing templates based on profile
   const templates = [
     { title: 'Car Repair Emergency', type: 'emergency' as const, impact: -1500, prob: 0.3 },
     { title: 'Medical Bill', type: 'emergency' as const, impact: -2500, prob: 0.2 },
@@ -340,10 +378,27 @@ function generateLifeEvents(profile: UserProfile, years: number): import('../typ
     { title: 'First Investment Dividend', type: 'investment' as const, impact: 500, prob: 0.35 },
   ]
 
+  // Add age-specific events
+  if (profile.age > 25 && profile.age < 35) {
+    templates.push({ title: 'Family Expansion', type: 'expense' as const, impact: -15000, prob: 0.1 })
+  }
+  
+  // Customizing probability based on career goal
+  if (profile.careerGoal.toLowerCase().includes('tech') || profile.careerGoal.toLowerCase().includes('software')) {
+    const promo = templates.find(t => t.title === 'Job Promotion')
+    if (promo) promo.prob = 0.25 // Higher promo chance in tech
+  }
+
   for (let y = 0; y < years; y++) {
     const yearEvents = templates.filter(() => Math.random() < 0.3)
     yearEvents.forEach((template) => {
       if (Math.random() < template.prob) {
+        // Adjust impact based on income for some events
+        let finalImpact = template.impact
+        if (template.type === 'income' && template.title.includes('Raise')) {
+          finalImpact = profile.monthlyIncome * 1.5 // Custom raise
+        }
+
         events.push({
           id: crypto.randomUUID(),
           year: y,
@@ -351,7 +406,7 @@ function generateLifeEvents(profile: UserProfile, years: number): import('../typ
           title: template.title,
           description: `Year ${y + 1}: ${template.title}`,
           type: template.type,
-          impact: template.impact * (0.8 + Math.random() * 0.4),
+          impact: finalImpact * (0.8 + Math.random() * 0.4),
           probability: template.prob,
         })
       }

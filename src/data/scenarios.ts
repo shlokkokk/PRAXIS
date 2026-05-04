@@ -54,7 +54,7 @@ function buildProjection(base: number, rate: number, years: number, monthly = 0)
   }
 }
 
-function firstPaycheckScenario(profile: UserProfile, twin: FinancialTwin): ScenarioData {
+function firstPaycheckScenario(profile: UserProfile, _twin: FinancialTwin): ScenarioData {
   const income = profile.monthlyIncome
   const salary = varyAmount(income, 0.1)
 
@@ -234,7 +234,7 @@ function firstPaycheckScenario(profile: UserProfile, twin: FinancialTwin): Scena
   }
 }
 
-function marketCrashScenario(profile: UserProfile, twin: FinancialTwin): ScenarioData {
+function marketCrashScenario(profile: UserProfile, _twin: FinancialTwin): ScenarioData {
   const portfolioValue = varyAmount(25000, 0.2)
   return {
     id: 'market_crash',
@@ -288,7 +288,7 @@ function marketCrashScenario(profile: UserProfile, twin: FinancialTwin): Scenari
   }
 }
 
-function windfallScenario(profile: UserProfile, twin: FinancialTwin): ScenarioData {
+function windfallScenario(profile: UserProfile, _twin: FinancialTwin): ScenarioData {
   const amount = varyAmount(10000, 0.15)
   return {
     id: 'windfall',

@@ -1,6 +1,5 @@
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
-import { useStore } from './store/useStore'
 import Landing from './pages/Landing'
 import Onboarding from './pages/Onboarding'
 import Simulation from './pages/Simulation'

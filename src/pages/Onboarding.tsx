@@ -42,20 +42,18 @@ export default function Onboarding() {
 
   const [step, setStep] = useState(0)
   const [direction, setDirection] = useState(1)
-  const [isGenerating, setIsGenerating] = useState(false)
+
 
   const goNext = useCallback(() => {
     if (step === 2) {
       setDirection(1)
       setStep(3)
-      setIsGenerating(true)
 
       setTimeout(() => {
         const profile = generateUserProfile(onboarding)
         const twin = generateFinancialTwin(profile)
         setUserProfile(profile)
         setFinancialTwin(twin)
-        setIsGenerating(false)
         setStep(4)
       }, 3500)
       return

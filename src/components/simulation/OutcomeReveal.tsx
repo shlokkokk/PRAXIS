@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import type { ScenarioNode } from '../../data/scenarios'
 import type { CouncilDeliberation } from '../../types'
+import { audio } from '../../utils/audio'
 
 interface Props {
   node: ScenarioNode
@@ -100,8 +101,26 @@ export default function OutcomeReveal({ node, selectedOptionId, councilDeliberat
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9 }}
         >
-          <h3>⚖️ The Council's Recommendation</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)' }}>
+            <h3 style={{ margin: 0 }}>⚖️ The Council's Recommendation</h3>
+            {councilDeliberation?.synthesis?.confidenceScore && (
+              <span className="badge" style={{ background: 'rgba(139, 92, 246, 0.15)', color: 'var(--color-violet)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
+                {Math.round(councilDeliberation.synthesis.confidenceScore * 100)}% Confidence
+              </span>
+            )}
+          </div>
           <p>{councilPick}</p>
+
+          {councilDeliberation?.synthesis?.tradeOffs && councilDeliberation.synthesis.tradeOffs.length > 0 && (
+            <div className="council-tradeoffs" style={{ marginTop: 'var(--space-4)', paddingTop: 'var(--space-4)', borderTop: '1px solid var(--color-border)' }}>
+              <h4 style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 'var(--space-2)' }}>Trade-Offs Considered:</h4>
+              <ul style={{ paddingLeft: 'var(--space-4)', fontSize: 'var(--text-sm)', margin: 0 }}>
+                {councilDeliberation.synthesis.tradeOffs.map((tradeoff, i) => (
+                  <li key={i} style={{ color: 'var(--color-text-tertiary)', marginBottom: '4px' }}>{tradeoff}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </motion.div>
       )}
 
@@ -111,7 +130,7 @@ export default function OutcomeReveal({ node, selectedOptionId, councilDeliberat
         animate={{ opacity: 1 }}
         transition={{ delay: 1.1 }}
       >
-        <button className="btn btn-primary btn-lg" onClick={onContinue}>
+        <button className="btn btn-primary btn-lg" onClick={onContinue} onMouseEnter={() => audio.playHover()}>
           Continue to Next Decision →
         </button>
       </motion.div>

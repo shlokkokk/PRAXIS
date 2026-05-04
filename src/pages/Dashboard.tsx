@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useStore } from '../store/useStore'
@@ -16,24 +16,31 @@ import {
   Wallet,
   RefreshCw,
   AlertTriangle,
-  X
+  X,
+  ShieldCheck,
+  Hammer,
+  Compass,
+  Telescope,
+  Volume2,
+  VolumeX,
+  Dna,
+  Eye
 } from 'lucide-react'
 import {
   AreaChart,
   Area,
   XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Radar,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
-  PolarRadiusAxis
 } from 'recharts'
 import ParticleField from '../components/ParticleField'
 import GalaxyView from '../components/galaxy/GalaxyView'
+import { useMarketData } from '../hooks/useMarketData'
+import { audio } from '../utils/audio'
 import './Dashboard.css'
 
 const SCENARIOS = [
@@ -75,10 +82,69 @@ const DIFFICULTY_COLORS: Record<string, string> = {
   advanced: 'var(--color-rose)',
 }
 
+const MASTERY_LEVELS = [
+  { min: 0,  label: 'Novice',    color: 'var(--color-text-tertiary)' },
+  { min: 15, label: 'Learner',   color: 'var(--color-emerald)' },
+  { min: 30, label: 'Junior',    color: 'var(--color-cyan)' },
+  { min: 45, label: 'Adept',     color: 'var(--color-violet)' },
+  { min: 60, label: 'Expert',    color: 'var(--color-gold)' },
+  { min: 80, label: 'Master',    color: '#f43f5e' },
+]
+
+const ARCHETYPE_INFO: Record<string, { icon: React.ReactNode; label: string; description: string }> = {
+  guardian:   { 
+    icon: <ShieldCheck size={32} strokeWidth={1.2} />, 
+    label: 'The Guardian',
+    description: 'Prioritizes safety and fortress-like stability. Capital preservation is your primary directive.'
+  },
+  builder:    { 
+    icon: <Hammer size={32} strokeWidth={1.2} />,      
+    label: 'The Builder',
+    description: 'Methodical and balanced. You construct wealth through consistent, disciplined accumulation.'
+  },
+  explorer:   { 
+    icon: <Compass size={32} strokeWidth={1.2} />,     
+    label: 'The Explorer',
+    description: 'Bold opportunity seeker. You navigate high-volatility markets with calculated aggression.'
+  },
+  strategist: { 
+    icon: <Zap size={32} strokeWidth={1.2} />,         
+    label: 'The Strategist',
+    description: 'Analytical long-game player. You optimize for efficiency, tax-minimization, and compound math.'
+  },
+  visionary:  { 
+    icon: <Telescope size={32} strokeWidth={1.2} />,   
+    label: 'The Visionary',
+    description: 'Future-architect. You see capital as fuel for building a specific, ambitious reality.'
+  },
+}
+
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { userProfile, financialTwin, mastery, completedScenarios, decisionHistory, purgeStore } = useStore()
+  const { userProfile, financialTwin, mastery, completedScenarios, decisionHistory, purgeStore, soundEnabled, setSoundEnabled, showGalaxy, setShowGalaxy } = useStore()
   const [showResetModal, setShowResetModal] = useState(false)
+  const [serverLive, setServerLive] = useState(false)
+  const { data: marketData, loading: marketLoading } = useMarketData()
+
+  useEffect(() => {
+    audio.init()
+    audio.setEnabled(soundEnabled)
+  }, [soundEnabled])
+
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/health')
+        const data = await res.json()
+        setServerLive(data.ai_enabled)
+      } catch {
+        setServerLive(false)
+      }
+    }
+    checkServer()
+    const interval = setInterval(checkServer, 10000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Scroll lock when modal is open
   useEffect(() => {
@@ -103,6 +169,11 @@ export default function Dashboard() {
   const healthScore = Math.round(financialTwin.financialHealth.overallScore)
   const netWorth = financialTwin.netWorth
 
+  const masteryLevel = MASTERY_LEVELS.slice().reverse().find(l => mastery.overallScore >= l.min) || MASTERY_LEVELS[0]
+  const archetypeInfo = userProfile.moneyPersonality?.archetype 
+    ? ARCHETYPE_INFO[userProfile.moneyPersonality.archetype] 
+    : null
+
   const projectionData = useMemo(() => {
     return financialTwin.projectedIncome.map((income, i) => {
       // Find life events for this year
@@ -122,11 +193,12 @@ export default function Dashboard() {
   const masteryData = useMemo(() => {
     const { categories } = mastery
     return [
-      { subject: 'Budgeting', A: categories.budgeting || 40, fullMark: 100 },
-      { subject: 'Investing', A: categories.investing || 30, fullMark: 100 },
-      { subject: 'Debt', A: categories.debtManagement || 50, fullMark: 100 },
-      { subject: 'Behavior', A: categories.behavioralAwareness || 60, fullMark: 100 },
-      { subject: 'Risk', A: categories.riskManagement || 45, fullMark: 100 },
+      { subject: 'Budgeting',  A: categories.budgeting          || 0, fullMark: 100 },
+      { subject: 'Investing',  A: categories.investing          || 0, fullMark: 100 },
+      { subject: 'Debt',       A: categories.debtManagement     || 0, fullMark: 100 },
+      { subject: 'Behavior',   A: categories.behavioralAwareness|| 0, fullMark: 100 },
+      { subject: 'Tax',        A: categories.taxOptimization    || 0, fullMark: 100 },
+      { subject: 'Risk',       A: categories.riskManagement     || 0, fullMark: 100 },
     ]
   }, [mastery])
 
@@ -134,9 +206,10 @@ export default function Dashboard() {
     const { cx, cy, payload } = props
     if (payload.event) {
       return (
-        <svg x={cx - 6} y={cy - 6} width={12} height={12} fill="white">
-          <circle cx="6" cy="6" r="4" fill="var(--color-cyan)" stroke="white" strokeWidth={2} />
-        </svg>
+        <g key={payload.year}>
+          <circle cx={cx} cy={cy} r={8} fill="var(--color-cyan)" fillOpacity={0.15} />
+          <circle cx={cx} cy={cy} r={4} fill="var(--color-cyan)" stroke="#fff" strokeWidth={2} />
+        </g>
       )
     }
     return null
@@ -152,17 +225,58 @@ export default function Dashboard() {
       <ParticleField />
 
       <nav className="dashboard-nav">
-        <div className="nav-logo">
-          <span className="logo-text" style={{ fontSize: 'var(--text-lg)' }}>PRAXIS</span>
+        {/* Left Segment: Identity & Streak */}
+        <div className="nav-segment identity">
+          <div className="nav-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} onMouseEnter={() => audio.playHover()}>
+            <span className="logo-text">PRAXIS</span>
+          </div>
+          <div className="divider" />
+          <div className="user-readout">
+            <span className="welcome-text">Welcome back,</span>
+            <div className="user-details">
+              <span className="user-name">{userProfile.name}</span>
+              <div className="streak-indicator">
+                <span className="streak-fire">🔥</span>
+                <span className="streak-value">{mastery.streakDays || 0}</span>
+                <span className="streak-label">STREAK</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="nav-links">
-          <span className="nav-greeting">Welcome back, {userProfile.name}</span>
+
+        {/* Center Segment: Intelligence Status */}
+        <div className="nav-segment intelligence">
+          <div className={`status-node ${serverLive ? 'live' : 'mock'}`}>
+            <div className="pulse-container">
+              <div className="pulse-core" />
+              <div className="pulse-ring" />
+            </div>
+            <span className="status-text">
+              {serverLive ? 'QUANTUM_COUNCIL_ONLINE' : 'HEURISTIC_MOCK_ACTIVE'}
+            </span>
+          </div>
+        </div>
+
+        {/* Right Segment: Global Controls */}
+        <div className="nav-segment controls">
           <button 
-            className="btn-reset-timeline"
+            className="btn-nav"
+            onClick={() => {
+              setSoundEnabled(!soundEnabled)
+              if (!soundEnabled) audio.playClick()
+            }}
+            onMouseEnter={() => audio.playHover()}
+            title="Aural Environment"
+          >
+            {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          </button>
+          <button 
+            className="btn-nav danger"
             onClick={() => setShowResetModal(true)}
+            onMouseEnter={() => audio.playHover()}
             title="Reset Timeline"
           >
-            <RefreshCw size={18} />
+            <RefreshCw size={16} />
           </button>
         </div>
       </nav>
@@ -190,7 +304,7 @@ export default function Dashboard() {
             </p>
             
             <div className="modal-actions">
-              <button className="btn-secondary" onClick={() => setShowResetModal(false)}>
+              <button className="btn-secondary" onClick={() => setShowResetModal(false)} onMouseEnter={() => audio.playHover()}>
                 Cancel
               </button>
               <button 
@@ -199,6 +313,7 @@ export default function Dashboard() {
                   purgeStore()
                   navigate('/landing')
                 }}
+                onMouseEnter={() => audio.playHover()}
               >
                 Reset Everything
               </button>
@@ -220,10 +335,179 @@ export default function Dashboard() {
               <p className="twin-meta">
                 {userProfile.age} · {userProfile.location} · {userProfile.careerGoal}
               </p>
+              {archetypeInfo && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', marginTop: 'var(--space-2)', padding: '4px 12px', borderRadius: 'var(--radius-full)', background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.25)', color: 'var(--color-violet)', fontSize: 'var(--text-xs)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                  {archetypeInfo.icon}
+                  {archetypeInfo.label.toUpperCase()}
+                </div>
+              )}
             </div>
+
+            {/* Live Market Ticker */}
+            <motion.div 
+              className="market-ticker"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              style={{
+                display: 'flex',
+                gap: 'var(--space-6)',
+                justifyContent: 'center',
+                padding: 'var(--space-3) var(--space-6)',
+                background: 'rgba(5, 5, 16, 0.4)',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                borderRadius: 'var(--radius-full)',
+                marginBottom: 'var(--space-8)',
+                fontSize: 'var(--text-xs)',
+                fontWeight: 600,
+                letterSpacing: '0.05em',
+                flexWrap: 'wrap'
+              }}
+            >
+              {marketLoading ? (
+                <span style={{ color: 'var(--color-text-tertiary)' }}>SYNCING WITH MARKETS...</span>
+              ) : (
+                <>
+                  {marketData.sp500 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>S&P 500</span>
+                      <span>${marketData.sp500.price.toFixed(2)}</span>
+                      <span style={{ color: marketData.sp500.change >= 0 ? 'var(--color-emerald)' : 'var(--color-rose)' }}>
+                        {marketData.sp500.change >= 0 ? '▲' : '▼'} {Math.abs(marketData.sp500.changePercent).toFixed(2)}%
+                      </span>
+                    </div>
+                  )}
+                  {marketData.btc && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>BTC</span>
+                      <span>${marketData.btc.price.toFixed(2)}</span>
+                      <span style={{ color: marketData.btc.change >= 0 ? 'var(--color-emerald)' : 'var(--color-rose)' }}>
+                        {marketData.btc.change >= 0 ? '▲' : '▼'} {Math.abs(marketData.btc.changePercent).toFixed(2)}%
+                      </span>
+                    </div>
+                  )}
+                  {marketData.fedRate !== null && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>FED RATE</span>
+                      <span style={{ color: 'var(--color-gold)' }}>{marketData.fedRate.toFixed(2)}%</span>
+                    </div>
+                  )}
+                  {marketData.inflation !== null && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <span style={{ color: 'var(--color-text-secondary)' }}>INFLATION</span>
+                      <span style={{ color: 'var(--color-rose)' }}>{marketData.inflation.toFixed(1)}%</span>
+                    </div>
+                  )}
+                  {marketData.isLive && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto', color: 'var(--color-emerald)', fontSize: '10px' }}>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-emerald)', boxShadow: '0 0 8px var(--color-emerald)' }} />
+                      LIVE
+                    </div>
+                  )}
+                </>
+              )}
+            </motion.div>
             
             <div style={{ marginBottom: 'var(--space-8)' }}>
-              <GalaxyView />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 12px', marginBottom: '12px' }}>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.15em', fontWeight: 700 }}>
+                  Financial Identity Matrix
+                </span>
+                <div className="view-toggle-pill">
+                  <button 
+                    className={showGalaxy ? 'active' : ''} 
+                    onClick={() => {
+                      setShowGalaxy(true)
+                      audio.playClick()
+                    }}
+                    onMouseEnter={() => audio.playHover()}
+                  >
+                    <Eye size={12} /> VISUAL GALAXY
+                  </button>
+                  <button 
+                    className={!showGalaxy ? 'active' : ''} 
+                    onClick={() => {
+                      setShowGalaxy(false)
+                      audio.playClick()
+                    }}
+                    onMouseEnter={() => audio.playHover()}
+                  >
+                    <Dna size={12} /> TWIN DNA
+                  </button>
+                </div>
+              </div>
+
+              <div className="identity-viewport card">
+                {showGalaxy ? (
+                  <div className="galaxy-container">
+                    <GalaxyView />
+                  </div>
+                ) : (
+                  <motion.div 
+                    className="dna-readout"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <div className="dna-grid">
+                      <div className="dna-section main">
+                        <div className="archetype-hero">
+                          <div className="archetype-icon-large">
+                            {archetypeInfo?.icon}
+                          </div>
+                          <div className="archetype-details">
+                            <h3>{archetypeInfo?.label}</h3>
+                            <p>{(archetypeInfo as any)?.description}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="dna-section portfolio">
+                        <h4>Allocation Strategy</h4>
+                        <div className="allocation-bars">
+                          {Object.entries(financialTwin.portfolioAllocation).map(([key, val]) => (
+                            <div key={key} className="allocation-row">
+                              <div className="alloc-label">
+                                <span>{key}</span>
+                                <span>{Math.round((val as number) * 100)}%</span>
+                              </div>
+                              <div className="alloc-bar-bg">
+                                <motion.div 
+                                  className={`alloc-bar-fill ${key}`} 
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${(val as number) * 100}%` }}
+                                  transition={{ duration: 1, delay: 0.2 }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="dna-section behavioral">
+                        <h4>Psychological Anchors</h4>
+                        <div className="trait-chips">
+                          <div className="trait-chip">
+                            <span className="label">Risk Tolerance</span>
+                            <span className="value">{userProfile.moneyPersonality.riskTolerance}/5</span>
+                          </div>
+                          <div className="trait-chip">
+                            <span className="label">Gratification</span>
+                            <span className="value">{userProfile.moneyPersonality.delayedGratification}/5</span>
+                          </div>
+                          <div className="trait-chip">
+                            <span className="label">Research Patience</span>
+                            <span className="value">{userProfile.moneyPersonality.researchPatience}/5</span>
+                          </div>
+                          <div className="trait-chip">
+                            <span className="label">Automation</span>
+                            <span className="value">{userProfile.moneyPersonality.automationComfort}/5</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -258,7 +542,7 @@ export default function Dashboard() {
               </div>
               <div className="stat-info">
                 <span className="stat-label-text">Mastery Level</span>
-                <span className="stat-value-text">Junior</span>
+                <span className="stat-value-text" style={{ color: masteryLevel.color }}>{masteryLevel.label}</span>
               </div>
             </div>
 
@@ -281,10 +565,10 @@ export default function Dashboard() {
               </div>
               <div className="chart-container">
                 <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={projectionData}>
+                  <AreaChart data={projectionData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-violet)" stopOpacity={0.3}/>
+                        <stop offset="5%" stopColor="var(--color-violet)" stopOpacity={0.4}/>
                         <stop offset="95%" stopColor="var(--color-violet)" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
@@ -294,14 +578,20 @@ export default function Dashboard() {
                       fontSize={10} 
                       tickLine={false} 
                       axisLine={false}
+                      dy={5}
+                      interval={0}
                     />
                     <Tooltip 
+                      cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
                       contentStyle={{ 
-                        background: 'var(--color-deep)', 
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-md)',
-                        fontSize: '12px'
+                        background: 'rgba(5, 5, 16, 0.9)', 
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        backdropFilter: 'blur(10px)',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
                       }}
+                      itemStyle={{ color: '#fff', fontWeight: 600 }}
                     />
                     <Area 
                       type="monotone" 
@@ -310,8 +600,9 @@ export default function Dashboard() {
                       fillOpacity={1} 
                       fill="url(#colorNetWorth)" 
                       strokeWidth={3}
+                      animationDuration={1500}
                       dot={<CustomDot />}
-                      activeDot={{ r: 6, strokeWidth: 0, fill: 'var(--color-cyan)' }}
+                      activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff', fill: 'var(--color-cyan)' }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -324,7 +615,7 @@ export default function Dashboard() {
             <div className="chart-card">
               <div className="chart-header">
                 <h3><Shield size={18} /> Financial Mastery</h3>
-                <p>Knowledge distribution across 5 core domains</p>
+                <p>Knowledge distribution across 6 core domains</p>
               </div>
               <div className="chart-container" style={{ display: 'flex', justifyContent: 'center' }}>
                 <ResponsiveContainer width="100%" height={250}>
@@ -346,7 +637,7 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </div>
               <div className="chart-footer">
-                <span className="conflict-tag">Council Conflict Density: 24% (Low)</span>
+                <span className="conflict-tag">Overall Mastery Score: {mastery.overallScore}/100</span>
               </div>
             </div>
           </div>
@@ -373,6 +664,7 @@ export default function Dashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
                   onClick={() => navigate(`/simulation/${scenario.id}`)}
+                  onMouseEnter={() => audio.playHover()}
                 >
                   <div className="scenario-header">
                     <div className="scenario-icon" style={{ background: `${scenario.color}20`, borderColor: `${scenario.color}40` }}>

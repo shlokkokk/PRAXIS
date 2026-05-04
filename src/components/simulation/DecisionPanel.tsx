@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import type { ScenarioNode } from '../../data/scenarios'
+import { audio } from '../../utils/audio'
 
 interface Props {
   node: ScenarioNode
@@ -28,6 +29,7 @@ export default function DecisionPanel({ node, onRequestCouncil, onChoose, counci
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             onClick={() => onChoose(option.id)}
+            onMouseEnter={() => audio.playHover()}
             disabled={!!selectedOption}
           >
             <div className="option-header">
@@ -54,7 +56,10 @@ export default function DecisionPanel({ node, onRequestCouncil, onChoose, counci
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
         >
-          <button className="btn btn-secondary" onClick={onRequestCouncil}>
+          <button className="btn btn-secondary" onClick={() => {
+            onRequestCouncil()
+            audio.playClick()
+          }} onMouseEnter={() => audio.playHover()}>
             ⚖️ Consult the AI Council Before Choosing
           </button>
           <p className="council-hint">

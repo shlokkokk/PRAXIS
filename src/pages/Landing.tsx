@@ -1,7 +1,8 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useStore } from '../store/useStore'
+import { audio } from '../utils/audio'
 import ParticleField from '../components/ParticleField'
 import { Dna, Scale, Sparkles, Clock, GitBranch, Brain, Zap, Target, Eye } from 'lucide-react'
 import './Landing.css'
@@ -74,7 +75,7 @@ export default function Landing() {
       <ParticleField />
 
       <nav className="landing-nav">
-        <div className="nav-logo">
+        <div className="nav-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} onMouseEnter={() => audio.playHover()}>
           <div className="logo-icon">
             <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="16" cy="16" r="4" fill="url(#logoGrad)" />
@@ -92,11 +93,11 @@ export default function Landing() {
         </div>
         <div className="nav-links">
           {userProfile && (
-            <button className="btn btn-ghost" onClick={() => navigate('/dashboard')}>
+            <button className="btn btn-ghost" onClick={() => navigate('/dashboard')} onMouseEnter={() => audio.playHover()}>
               Dashboard
             </button>
           )}
-          <button className="btn btn-primary btn-sm" onClick={handleStart}>
+          <button className="btn btn-primary btn-sm" onClick={handleStart} onMouseEnter={() => audio.playHover()}>
             {userProfile ? 'Continue' : 'Get Started'}
           </button>
         </div>
@@ -124,13 +125,13 @@ export default function Landing() {
           </p>
 
           <div className="hero-actions">
-            <button className="btn btn-primary btn-lg" onClick={handleStart}>
+            <button className="btn btn-primary btn-lg" onClick={handleStart} onMouseEnter={() => audio.playHover()}>
               <span>Begin Your Financial Life</span>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
-            <button className="btn btn-secondary btn-lg" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
+            <button className="btn btn-secondary btn-lg" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} onMouseEnter={() => audio.playHover()}>
               See How It Works
             </button>
           </div>
@@ -244,7 +245,7 @@ export default function Landing() {
             3 minutes to your first simulation. No credit card. No commitment.
             Just decisions and their consequences.
           </p>
-          <button className="btn btn-primary btn-lg" onClick={handleStart}>
+          <button className="btn btn-primary btn-lg" onClick={handleStart} onMouseEnter={() => audio.playHover()}>
             Create Your Financial Twin
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
