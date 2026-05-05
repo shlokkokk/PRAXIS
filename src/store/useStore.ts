@@ -386,9 +386,25 @@ function generateLifeEvents(profile: UserProfile, years: number): import('../typ
   }
   
   // Customizing probability based on career goal
-  if (profile.careerGoal.toLowerCase().includes('tech') || profile.careerGoal.toLowerCase().includes('software')) {
+  const career = profile.careerGoal.toLowerCase()
+  const isTech = ['software', 'tech', 'data', 'cyber', 'cloud', 'devops', 'blockchain', 'web3', 'ui/ux'].some(k => career.includes(k))
+  const isFinance = ['finance', 'bank', 'accounting', 'cpa', 'venture', 'actuarial'].some(k => career.includes(k))
+  const isMedical = ['medicine', 'doctor', 'surgeon', 'nursing', 'healthcare', 'biotech'].some(k => career.includes(k))
+  const isBusiness = ['product', 'project', 'scrum', 'management', 'marketing', 'sales', 'growth', 'consulting', 'founder', 'entrepreneurship'].some(k => career.includes(k))
+
+  if (isTech) {
     const promo = templates.find(t => t.title === 'Job Promotion')
-    if (promo) promo.prob = 0.25 // Higher promo chance in tech
+    if (promo) promo.prob = 0.28 // Higher promo chance in tech
+  } else if (isFinance || isBusiness) {
+    const raise = templates.find(t => t.title === 'Salary Raise')
+    if (raise) raise.prob = 0.5 // Higher frequency of salary bumps
+    const promo = templates.find(t => t.title === 'Job Promotion')
+    if (promo) promo.impact = 18000 // Huge jumps in finance/business
+  } else if (isMedical) {
+    const sideHustle = templates.find(t => t.title === 'Side Hustle Opportunity')
+    if (sideHustle) sideHustle.prob = 0.1 // Less time for side hustles
+    const emergency = templates.find(t => t.title === 'Medical Bill')
+    if (emergency) emergency.prob = 0.05 // Better insurance coverage
   }
 
   for (let y = 0; y < years; y++) {

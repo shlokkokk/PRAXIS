@@ -1,24 +1,7 @@
 import { useMemo } from 'react'
 
-const LOCATIONS = [
-  'New York, NY', 'Los Angeles, CA', 'Chicago, IL', 'Houston, TX',
-  'Phoenix, AZ', 'Philadelphia, PA', 'San Antonio, TX', 'San Diego, CA',
-  'Dallas, TX', 'San Jose, CA', 'Austin, TX', 'Jacksonville, FL',
-  'San Francisco, CA', 'Columbus, OH', 'Charlotte, NC', 'Indianapolis, IN',
-  'Seattle, WA', 'Denver, CO', 'Washington, DC', 'Nashville, TN',
-  'Portland, OR', 'Boston, MA', 'Las Vegas, NV', 'Atlanta, GA',
-  'Miami, FL', 'Minneapolis, MN', 'Detroit, MI', 'Other',
-]
-
-const CAREERS = [
-  'Software Engineering', 'Data Science', 'Product Management',
-  'Marketing', 'Finance / Accounting', 'Healthcare / Nursing',
-  'Education / Teaching', 'Design / UX', 'Sales', 'Law',
-  'Consulting', 'Entrepreneurship', 'Engineering (Non-Software)',
-  'Freelancing / Gig Work', 'Trades / Skilled Labor', 'Government',
-  'Nonprofit / Social Work', 'Arts / Entertainment', 'Student',
-  'Other',
-]
+import SearchableSelect from '../ui/SearchableSelect'
+import { ALL_COUNTRIES, ENHANCED_CAREERS } from '../../utils/constants'
 
 interface Props {
   data: {
@@ -74,42 +57,38 @@ export default function IdentityStep({ data, onUpdate, onNext, onBack }: Props) 
             <input
               id="age"
               className="input"
-              type="number"
-              min={16}
-              max={65}
-              value={data.age}
-              onChange={(e) => onUpdate({ age: parseInt(e.target.value) || 22 })}
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={2}
+              value={data.age || ''}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '')
+                onUpdate({ age: val === '' ? 0 : parseInt(val, 10) })
+              }}
             />
           </div>
           <div className="form-group">
             <label className="form-label" htmlFor="location">Location</label>
-            <select
+            <SearchableSelect
               id="location"
-              className="input"
               value={data.location}
-              onChange={(e) => onUpdate({ location: e.target.value })}
-            >
-              <option value="">Select city...</option>
-              {LOCATIONS.map((loc) => (
-                <option key={loc} value={loc}>{loc}</option>
-              ))}
-            </select>
+              onChange={(value) => onUpdate({ location: value })}
+              options={ALL_COUNTRIES}
+              placeholder="Search country..."
+            />
           </div>
         </div>
 
         <div className="form-group">
           <label className="form-label" htmlFor="career">Career Goal / Current Field</label>
-          <select
+          <SearchableSelect
             id="career"
-            className="input"
             value={data.careerGoal}
-            onChange={(e) => onUpdate({ careerGoal: e.target.value })}
-          >
-            <option value="">Select career path...</option>
-            {CAREERS.map((career) => (
-              <option key={career} value={career}>{career}</option>
-            ))}
-          </select>
+            onChange={(value) => onUpdate({ careerGoal: value })}
+            options={ENHANCED_CAREERS}
+            placeholder="Search career path..."
+          />
         </div>
 
         <div className="form-group">
