@@ -323,8 +323,64 @@ function windfallScenario(profile: UserProfile, _twin: FinancialTwin): ScenarioD
   }
 }
 
+function summerHustleScenario(_profile: UserProfile, _twin: FinancialTwin): ScenarioData {
+  return {
+    id: 'summer_hustle',
+    title: 'THE SUMMER HUSTLE',
+    subtitle: 'From your first summer job to your freshman dorm.',
+    description: 'Navigate the crucial years between 16 and 19. Car payments, prom costs, student loans, and credit card traps. Build the foundation.',
+    backstory: `You just finished a grueling 10-week summer job as a lifeguard, saving exactly $2,000. You are 16, heading into your Junior year of high school. The decisions you make over the next 4 years will dictate whether you graduate college ahead of the pack, or drowning in debt.`,
+    icon: '🎒',
+    color: '#06b6d4',
+    totalYears: 4,
+    nodes: [
+      {
+        id: 'sh-1', year: 0, month: 0, title: 'The $2k Allocation',
+        context: 'You have $2,000 in your checking account. It\'s the most money you\'ve ever seen. What do you do with it?',
+        conservatorAdvice: 'Save it in a High-Yield Savings Account. Prom, college applications, and emergencies are coming fast. Cash is king for a teenager.',
+        growerAdvice: 'Open a Custodial Roth IRA and buy the S&P 500. $2k invested at age 16 can become $100k by retirement. Don\'t waste the magic of compound interest.',
+        behavioristAdvice: 'The urge to buy a car or a gaming PC is strong. That\'s instant gratification. Be careful not to lock yourself into expensive habits (like gas and insurance) too early.',
+        options: [
+          { id: 'sh-1-a', label: 'Buy a Used Car', description: '$1,500 down payment, $500 saved for gas and insurance.', icon: '🚗', riskLevel: 'high', projection: buildProjection(0, 0, 4, -100), shortTermResult: 'You have freedom, but gas and insurance drain your monthly cash flow instantly.', lessons: ['Cars are depreciating liabilities', 'Maintenance and insurance often cost more than the car over time'], scoreImpact: 2, tags: ['liability', 'lifestyle-inflation'] },
+          { id: 'sh-1-b', label: 'High-Yield Savings Account', description: 'Put the $2,000 in a 5% HYSA.', icon: '🏦', riskLevel: 'low', projection: buildProjection(2000, 0.05, 4), shortTermResult: 'Boring, but safe. You earn $100 in interest the first year and have cash ready for senior year.', lessons: ['Liquidity is important for near-term goals', 'HYSAs protect against inflation better than checking accounts'], scoreImpact: 10, tags: ['savings', 'liquidity'] },
+          { id: 'sh-1-c', label: 'Custodial Roth IRA', description: 'Invest $2,000 into an S&P 500 Index Fund.', icon: '📈', riskLevel: 'medium', projection: buildProjection(2000, 0.09, 4), shortTermResult: 'The money is locked up, but your 10-year projection just skyrocketed due to starting at age 16.', lessons: ['Time in the market is your greatest asset', 'Tax-free growth in a Roth IRA is incredibly powerful'], scoreImpact: 16, tags: ['investing', 'compound-interest'] },
+          { id: 'sh-1-d', label: 'YOLO (Gaming PC & Clothes)', description: 'Spend $2,000 on immediate upgrades.', icon: '🎮', riskLevel: 'high', projection: buildProjection(0, 0, 4), shortTermResult: 'You had a great weekend. Now you have $0 and your PC is already depreciating.', lessons: ['Instant gratification destroys wealth building', 'Consumer goods lose 50% of value instantly'], scoreImpact: 0, tags: ['consumption', 'zero-savings'] },
+        ],
+      },
+      {
+        id: 'sh-2', year: 1, month: 6, title: 'The Senior Expense',
+        context: 'It\'s Senior Year spring. Prom and a class trip to Florida will cost $800 total. How are you paying?',
+        options: [
+          { id: 'sh-2-a', label: 'Put it on a Credit Card', description: 'Pay minimums at 24% APR.', icon: '💳', riskLevel: 'high', projection: buildProjection(-800, -0.24, 3), shortTermResult: 'You went, but the $800 trip is going to cost you $1,200 after interest.', lessons: ['Credit card interest is financial poison', 'Never finance lifestyle events'], scoreImpact: 0, tags: ['credit-card', 'debt'] },
+          { id: 'sh-2-b', label: 'Pay Cash from Savings', description: 'Use your HYSA or summer job cash.', icon: '💵', riskLevel: 'low', projection: buildProjection(1200, 0.05, 3), shortTermResult: 'You paid in full, enjoyed the trip stress-free, and still have savings left over.', lessons: ['Cash reserves eliminate financial stress', 'Sinking funds for expected expenses work'], scoreImpact: 12, tags: ['savings', 'planning'] },
+          { id: 'sh-2-c', label: 'Skip the Trip, Preserve Capital', description: 'Say no to the trip, keep your investments growing.', icon: '🛡️', riskLevel: 'low', projection: buildProjection(2000, 0.09, 3), shortTermResult: 'You missed out on memories, but mathematically your net worth is protected.', lessons: ['Opportunity cost works both ways (money vs memories)', 'Extreme frugality can lead to regret'], scoreImpact: 8, tags: ['frugality', 'opportunity-cost'] },
+        ],
+      },
+      {
+        id: 'sh-3', year: 2, month: 0, title: 'The College Crossroads',
+        context: 'You got accepted! Now for the biggest financial decision of your life: Where do you go?',
+        options: [
+          { id: 'sh-3-a', label: 'Dream Out-of-State Uni', description: 'Take out $40k/year in student loans for the "experience".', icon: '🏛️', riskLevel: 'high', projection: buildProjection(-160000, -0.06, 10), shortTermResult: 'You had a fun freshman year, but you are now chained to a massive, non-bankruptable debt anchor.', lessons: ['Student loans cripple future cash flow', 'The "college experience" is rarely worth six-figure debt'], scoreImpact: 0, tags: ['student-loans', 'debt-trap'] },
+          { id: 'sh-3-b', label: 'In-State Public Uni', description: 'Use a partial scholarship. Only $10k/year in loans.', icon: '🏫', riskLevel: 'medium', projection: buildProjection(-40000, -0.06, 10), shortTermResult: 'A balanced approach. You get a solid degree with manageable debt that a starting salary can cover.', lessons: ['ROI on state schools is often higher than private', 'Minimizing early debt accelerates wealth building post-grad'], scoreImpact: 14, tags: ['education-roi', 'balance'] },
+          { id: 'sh-3-c', label: 'Community College First', description: '2 years at CC living at home, then transfer. $0 debt.', icon: '🏠', riskLevel: 'low', projection: buildProjection(0, 0, 10), shortTermResult: 'You missed the dorm experience, but you will graduate with exactly $0 in student loan debt.', lessons: ['Community college is the ultimate financial hack', 'Starting life at net-zero is better than starting at negative $50k'], scoreImpact: 18, tags: ['debt-free', 'optimization'] },
+        ],
+      },
+      {
+        id: 'sh-4', year: 3, month: 0, title: 'The Plastic Trap',
+        context: 'Freshman fall. A bank is on campus giving away free pizza if you sign up for a credit card. What\'s your move?',
+        options: [
+          { id: 'sh-4-a', label: 'Sign up for the Rewards Card', description: 'Get a $2,000 limit and immediately buy a new MacBook.', icon: '🍕', riskLevel: 'high', projection: buildProjection(-2000, -0.24, 1), shortTermResult: 'You got the pizza and the laptop, but you are now carrying a balance at 24% interest.', lessons: ['Banks target students because they lack financial literacy', 'Never carry a balance on a credit card'], scoreImpact: 0, tags: ['credit-card', 'revolving-debt'] },
+          { id: 'sh-4-b', label: 'Secured Student Card', description: 'Get a $500 limit card, use it only for gas, and set to autopay.', icon: '💳', riskLevel: 'low', projection: buildProjection(0, 0, 1), shortTermResult: 'You got the pizza, paid no interest, and your credit score is already 720 by sophomore year.', lessons: ['Credit cards are tools, not free money', 'Building credit early saves thousands on future mortgages'], scoreImpact: 18, tags: ['credit-building', 'automation'] },
+          { id: 'sh-4-c', label: 'Refuse the Card', description: 'Rip up the application. Debit cards only.', icon: '🛑', riskLevel: 'low', projection: buildProjection(0, 0, 1), shortTermResult: 'You avoided debt, but you also aren\'t building a credit history.', lessons: ['Avoiding credit completely makes renting apartments and buying cars harder later', 'Credit scores are a necessary game'], scoreImpact: 8, tags: ['debt-avoidance', 'no-credit'] },
+        ],
+      },
+    ],
+  }
+}
+
 export function getScenario(id: string, profile: UserProfile, twin: FinancialTwin): ScenarioData {
   switch (id) {
+    case 'summer_hustle': return summerHustleScenario(profile, twin)
     case 'market_crash': return marketCrashScenario(profile, twin)
     case 'windfall': return windfallScenario(profile, twin)
     case 'first_paycheck':

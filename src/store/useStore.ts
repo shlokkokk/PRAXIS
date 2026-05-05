@@ -354,8 +354,8 @@ export function generateFinancialTwin(profile: UserProfile): FinancialTwin {
     netWorth: profile.currentSavings - profile.currentDebt,
     portfolioAllocation: baseAllocation,
     financialHealth: {
-      emergencyFundMonths: profile.currentSavings / (profile.monthlyIncome * 0.7),
-      debtToIncomeRatio: profile.currentDebt / (profile.monthlyIncome * 12),
+      emergencyFundMonths: profile.currentSavings / (profile.monthlyIncome > 0 ? profile.monthlyIncome * 0.7 : 500),
+      debtToIncomeRatio: profile.currentDebt / (profile.monthlyIncome > 0 ? profile.monthlyIncome * 12 : 1),
       savingsRate: 0.2,
       investmentDiversification: 0.5,
       overallScore: 45,

@@ -24,7 +24,9 @@ import {
   Volume2,
   VolumeX,
   Dna,
-  Eye
+  Eye,
+  GraduationCap,
+  BookOpen
 } from 'lucide-react'
 import {
   AreaChart,
@@ -42,9 +44,20 @@ import ParticleField from '../components/ParticleField'
 import GalaxyView from '../components/galaxy/GalaxyView'
 import { useMarketData } from '../hooks/useMarketData'
 import { audio } from '../utils/audio'
+import GlossaryModal from '../components/glossary/GlossaryModal'
 import './Dashboard.css'
 
 const SCENARIOS = [
+  {
+    id: 'summer_hustle',
+    title: 'The Summer Hustle',
+    subtitle: 'From your first summer job to your freshman dorm.',
+    description: 'Navigate the crucial years between 16 and 19. Car payments, prom costs, student loans, and credit card traps. Build the foundation.',
+    icon: <GraduationCap size={20} strokeWidth={1.5} />,
+    difficulty: 'beginner' as const,
+    estimatedMinutes: 15,
+    color: '#06b6d4',
+  },
   {
     id: 'first_paycheck',
     title: 'The First Paycheck',
@@ -124,6 +137,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const { userProfile, financialTwin, mastery, updateMastery, completedScenarios, decisionHistory, purgeStore, soundEnabled, setSoundEnabled, showGalaxy, setShowGalaxy } = useStore()
   const [showResetModal, setShowResetModal] = useState(false)
+  const [showGlossary, setShowGlossary] = useState(false)
   const [serverLive, setServerLive] = useState(false)
   const [tickerCooldown, setTickerCooldown] = useState(false)
   const { data: marketData, loading: marketLoading, refresh: refreshMarket, isRefreshing: marketRefreshing } = useMarketData()
@@ -159,7 +173,7 @@ export default function Dashboard() {
 
   // Scroll lock when modal is open
   useEffect(() => {
-    if (showResetModal) {
+    if (showResetModal || showGlossary) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'unset'
@@ -280,6 +294,14 @@ export default function Dashboard() {
             title="Aural Environment"
           >
             {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          </button>
+          <button 
+            className="btn-nav"
+            onClick={() => setShowGlossary(true)}
+            onMouseEnter={() => audio.playHover()}
+            title="Quantum Lexicon"
+          >
+            <BookOpen size={16} />
           </button>
           <button 
             className="btn-nav danger"
@@ -819,6 +841,7 @@ export default function Dashboard() {
           </section>
         )}
       </div>
+      <GlossaryModal isOpen={showGlossary} onClose={() => setShowGlossary(false)} />
     </motion.div>
   )
 }
