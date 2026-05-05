@@ -77,17 +77,7 @@ export default function Landing() {
       <nav className="landing-nav">
         <div className="nav-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} onMouseEnter={() => audio.playHover()}>
           <div className="logo-icon">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="4" fill="url(#logoGrad)" />
-              <ellipse cx="16" cy="16" rx="12" ry="5" fill="none" stroke="url(#logoGrad)" strokeWidth="1" opacity="0.6" transform="rotate(-20 16 16)" />
-              <ellipse cx="16" cy="16" rx="15" ry="6" fill="none" stroke="url(#logoGrad)" strokeWidth="0.7" opacity="0.4" transform="rotate(30 16 16)" />
-              <defs>
-                <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#06b6d4" />
-                </linearGradient>
-              </defs>
-            </svg>
+            <img src="/praxis-icon.svg" alt="Praxis Logo" />
           </div>
           <span className="logo-text">PRAXIS</span>
         </div>

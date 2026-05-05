@@ -266,18 +266,21 @@ export default function Dashboard() {
         {/* Left Segment: Identity & Streak */}
         <div className="nav-segment identity">
           <div className="nav-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} onMouseEnter={() => audio.playHover()}>
+            <div className="logo-icon">
+              <img src="/praxis-icon.svg" alt="Praxis Logo" />
+            </div>
             <span className="logo-text">PRAXIS</span>
           </div>
           <div className="divider" />
           <div className="user-readout">
-            <span className="welcome-text">Welcome back,</span>
-            <div className="user-details">
+            <div className="user-text">
+              <span className="welcome-text">WELCOME BACK,</span>
               <span className="user-name">{userProfile.name}</span>
-              <div className="streak-indicator">
-                <span className="streak-fire">🔥</span>
-                <span className="streak-value">{mastery.streakDays || 0}</span>
-                <span className="streak-label">STREAK</span>
-              </div>
+            </div>
+            <div className="streak-indicator">
+              <span className="streak-fire">🔥</span>
+              <span className="streak-value">{mastery.streakDays || 0}</span>
+              <span className="streak-label">STREAK</span>
             </div>
           </div>
         </div>

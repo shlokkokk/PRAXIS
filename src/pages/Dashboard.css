@@ -31,6 +31,19 @@
   gap: var(--space-4);
 }
 
+.logo-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
 .logo-text {
   font-family: var(--font-display);
   font-weight: 800;
@@ -49,60 +62,83 @@
 
 .user-readout {
   display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.user-text {
+  display: flex;
   flex-direction: column;
-  justify-content: center;
 }
 
 .welcome-text {
   font-size: 9px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: -2px;
-}
-
-.user-details {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+  letter-spacing: 0.15em;
+  line-height: 1;
+  margin-bottom: 4px;
 }
 
 .user-name {
-  font-size: 13px;
+  font-family: var(--font-display);
+  font-size: 14px;
   font-weight: 700;
-  color: #fff;
+  color: var(--color-text-primary);
+  line-height: 1;
   letter-spacing: 0.02em;
 }
 
 .streak-indicator {
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(244, 63, 94, 0.08);
-  padding: 2px 8px;
-  border-radius: 100px;
-  border: 1px solid rgba(244, 63, 94, 0.15);
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.streak-indicator:hover {
+  background: rgba(244, 63, 94, 0.05);
+  border-color: rgba(244, 63, 94, 0.2);
 }
 
 .streak-fire {
-  font-size: 10px;
+  font-size: 12px;
+  filter: grayscale(0.2);
+  transition: all 0.2s ease;
+}
+
+.streak-indicator:hover .streak-fire {
+  filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.4));
 }
 
 .streak-value {
-  font-size: 11px;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  transition: color 0.2s ease;
+}
+
+.streak-indicator:hover .streak-value {
   color: var(--color-rose);
-  line-height: 1;
 }
 
 .streak-label {
-  font-size: 8px;
-  font-weight: 700;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.1em;
+  transition: color 0.2s ease;
+}
+
+.streak-indicator:hover .streak-label {
   color: var(--color-rose);
-  opacity: 0.8;
-  letter-spacing: 0.05em;
-  line-height: 1;
 }
 
 /* Center Segment */
