@@ -120,9 +120,9 @@ export default function IdentityStep({ data, onUpdate, onNext, onBack }: Props) 
             </div>
             <input
               type="range"
-              min={1000}
+              min={0}
               max={20000}
-              step={250}
+              step={50}
               value={data.monthlyIncome}
               onChange={(e) => onUpdate({ monthlyIncome: parseInt(e.target.value) })}
             />
@@ -140,7 +140,7 @@ export default function IdentityStep({ data, onUpdate, onNext, onBack }: Props) 
                 type="range"
                 min={0}
                 max={100000}
-                step={500}
+                step={100}
                 value={data.currentSavings}
                 onChange={(e) => onUpdate({ currentSavings: parseInt(e.target.value) })}
               />
@@ -156,7 +156,7 @@ export default function IdentityStep({ data, onUpdate, onNext, onBack }: Props) 
                 type="range"
                 min={0}
                 max={200000}
-                step={1000}
+                step={100}
                 value={data.currentDebt}
                 onChange={(e) => onUpdate({ currentDebt: parseInt(e.target.value) })}
               />
