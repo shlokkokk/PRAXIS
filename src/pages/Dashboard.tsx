@@ -140,6 +140,7 @@ export default function Dashboard() {
   const [showResetModal, setShowResetModal] = useState(false)
   const [showGlossary, setShowGlossary] = useState(false)
   const [apiStatus, setApiStatus] = useState<'offline' | 'connected' | 'council'>('offline')
+  const [showColdStartBanner, setShowColdStartBanner] = useState(false)
   const [tickerCooldown, setTickerCooldown] = useState(false)
   const { data: marketData, loading: marketLoading, refresh: refreshMarket, isRefreshing: marketRefreshing } = useMarketData()
 
@@ -149,19 +150,29 @@ export default function Dashboard() {
   }, [soundEnabled])
 
   useEffect(() => {
+    // Show cold-start banner only if still offline after 4s (avoids flash on fast connections)
+    const bannerTimer = setTimeout(() => {
+      setApiStatus(prev => {
+        if (prev === 'offline') setShowColdStartBanner(true)
+        return prev
+      })
+    }, 4000)
+
     const checkServer = async () => {
       try {
         const res = await fetch(`${API_URL}/health`)
         if (!res.ok) { setApiStatus('offline'); return }
         const data = await res.json()
-        setApiStatus(data.ai_enabled ? 'council' : 'connected')
+        const newStatus = data.ai_enabled ? 'council' : 'connected'
+        setApiStatus(newStatus)
+        setShowColdStartBanner(false) // auto-dismiss on connection
       } catch {
         setApiStatus('offline')
       }
     }
     checkServer()
-    const interval = setInterval(checkServer, 10000)
-    return () => clearInterval(interval)
+    const interval = setInterval(checkServer, 8000)
+    return () => { clearInterval(interval); clearTimeout(bannerTimer) }
   }, [])
 
   // Self-healing: Recalibrate Mastery if state is corrupted (e.g. score > 100)
@@ -317,6 +328,24 @@ export default function Dashboard() {
           </button>
         </div>
       </nav>
+
+      {showColdStartBanner && (
+        <motion.div
+          className="cold-start-banner"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.4 }}
+        >
+          <div className="cold-start-inner">
+            <span className="cold-start-dot" />
+            <span className="cold-start-text">
+              Backend is starting up — this can take up to 30s. Hang tight.
+            </span>
+            <button className="cold-start-close" onClick={() => setShowColdStartBanner(false)}>✕</button>
+          </div>
+        </motion.div>
+      )}
 
       {showResetModal && (
         <div className="modal-overlay" onClick={() => setShowResetModal(false)}>
