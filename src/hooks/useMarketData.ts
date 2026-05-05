@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-
+import { API_URL } from '../config'
 const AV_KEY = 'IFA9SY7DHQTY0LMN'
 const CACHE_KEY = 'praxis-market-cache'
 const CACHE_MS = 5 * 60 * 1000 // 5 minutes
@@ -43,7 +43,7 @@ async function fetchQuote(symbol: string, label: string): Promise<MarketQuote | 
 
 async function fetchMacroData(): Promise<{ fedRate: number | null; inflation: number | null }> {
   try {
-    const res = await fetch('http://localhost:8000/api/market-data')
+    const res = await fetch(`${API_URL}/api/market-data`)
     if (!res.ok) return { fedRate: null, inflation: null }
     return await res.json()
   } catch {

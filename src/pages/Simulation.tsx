@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../store/useStore'
 import CouncilPanel from '../components/council/CouncilPanel'
 import DecisionPanel from '../components/simulation/DecisionPanel'
+import { API_URL } from '../config'
 import TimelineBar from '../components/simulation/TimelineBar'
 import ScenarioIntro from '../components/simulation/ScenarioIntro'
 import OutcomeReveal from '../components/simulation/OutcomeReveal'
@@ -64,7 +65,7 @@ export default function Simulation() {
     setCouncilLoading(true)
 
     try {
-      const response = await fetch('http://localhost:8000/api/deliberate', {
+      const response = await fetch(`${API_URL}/api/deliberate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

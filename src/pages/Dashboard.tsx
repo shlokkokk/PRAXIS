@@ -42,6 +42,7 @@ import {
 } from 'recharts'
 import ParticleField from '../components/ParticleField'
 import GalaxyView from '../components/galaxy/GalaxyView'
+import { API_URL } from '../config'
 import { useMarketData } from '../hooks/useMarketData'
 import { audio } from '../utils/audio'
 import GlossaryModal from '../components/glossary/GlossaryModal'
@@ -150,7 +151,7 @@ export default function Dashboard() {
   useEffect(() => {
     const checkServer = async () => {
       try {
-        const res = await fetch('http://localhost:8000/health')
+        const res = await fetch(`${API_URL}/health`)
         const data = await res.json()
         setServerLive(data.ai_enabled)
       } catch {
