@@ -379,47 +379,67 @@ input[type="range"]::-moz-range-thumb {
   min-height: 400px;
 }
 
-.generating-orb {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: var(--gradient-brand);
-  animation: orbPulse 2s ease-in-out infinite, orbSpin 4s linear infinite;
+.quantum-loader-container {
   position: relative;
-  box-shadow: 0 0 60px rgba(139, 92, 246, 0.4);
+  width: 140px;
+  height: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: var(--space-4);
 }
 
-.generating-orb::before {
-  content: '';
+.quantum-hex-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.hex-path-outer {
+  transform-origin: center;
+  animation: spin 10s linear infinite;
+  opacity: 0.6;
+}
+
+.hex-path-inner {
+  transform-origin: center;
+  animation: spin 6s linear infinite reverse;
+}
+
+.hex-path-core {
+  transform-origin: center;
+  animation: coreHeartbeat 2s ease-in-out infinite;
+}
+
+.scanning-line {
   position: absolute;
-  inset: -20px;
-  border-radius: 50%;
-  border: 2px solid rgba(139, 92, 246, 0.2);
-  animation: ringExpand 2s ease-out infinite;
+  top: -10%;
+  left: -20%;
+  right: -20%;
+  height: 1px;
+  background: var(--color-cyan);
+  box-shadow: 0 0 15px var(--color-cyan), 0 0 30px var(--color-cyan);
+  animation: scanMatrix 2.5s ease-in-out infinite alternate;
+  z-index: 2;
+  opacity: 0.8;
 }
 
-.generating-orb::after {
-  content: '';
-  position: absolute;
-  inset: -40px;
-  border-radius: 50%;
-  border: 1px solid rgba(6, 182, 212, 0.15);
-  animation: ringExpand 2s ease-out infinite 0.5s;
+@keyframes coreHeartbeat {
+  0%, 100% { 
+    transform: scale(0.85); 
+    opacity: 0.7; 
+  }
+  50% { 
+    transform: scale(1.1); 
+    opacity: 1; 
+  }
 }
 
-@keyframes orbPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-@keyframes orbSpin {
-  from { filter: hue-rotate(0deg); }
-  to { filter: hue-rotate(360deg); }
-}
-
-@keyframes ringExpand {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(1.5); opacity: 0; }
+@keyframes scanMatrix {
+  0% { top: -10%; opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { top: 110%; opacity: 0; }
 }
 
 .generating-text h2 {
