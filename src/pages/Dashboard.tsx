@@ -139,7 +139,7 @@ export default function Dashboard() {
   const { userProfile, financialTwin, mastery, updateMastery, completedScenarios, decisionHistory, purgeStore, soundEnabled, setSoundEnabled, showGalaxy, setShowGalaxy } = useStore()
   const [showResetModal, setShowResetModal] = useState(false)
   const [showGlossary, setShowGlossary] = useState(false)
-  const [serverLive, setServerLive] = useState(false)
+  const [apiStatus, setApiStatus] = useState<'offline' | 'connected' | 'council'>('offline')
   const [tickerCooldown, setTickerCooldown] = useState(false)
   const { data: marketData, loading: marketLoading, refresh: refreshMarket, isRefreshing: marketRefreshing } = useMarketData()
 
@@ -152,10 +152,11 @@ export default function Dashboard() {
     const checkServer = async () => {
       try {
         const res = await fetch(`${API_URL}/health`)
+        if (!res.ok) { setApiStatus('offline'); return }
         const data = await res.json()
-        setServerLive(data.ai_enabled)
+        setApiStatus(data.ai_enabled ? 'council' : 'connected')
       } catch {
-        setServerLive(false)
+        setApiStatus('offline')
       }
     }
     checkServer()
@@ -272,13 +273,15 @@ export default function Dashboard() {
 
         {/* Center Segment: Intelligence Status */}
         <div className="nav-segment intelligence">
-          <div className={`status-node ${serverLive ? 'live' : 'mock'}`}>
+          <div className={`status-node ${apiStatus}`}>
             <div className="pulse-container">
               <div className="pulse-core" />
               <div className="pulse-ring" />
             </div>
             <span className="status-text">
-              {serverLive ? 'QUANTUM_COUNCIL_ONLINE' : 'HEURISTIC_MOCK_ACTIVE'}
+              {apiStatus === 'council' && 'QUANTUM_COUNCIL_ONLINE'}
+              {apiStatus === 'connected' && 'API_CONNECTED · NO_AI'}
+              {apiStatus === 'offline' && 'HEURISTIC_MOCK_ACTIVE'}
             </span>
           </div>
         </div>

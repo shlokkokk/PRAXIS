@@ -122,8 +122,12 @@
   border-radius: 100px;
 }
 
-.status-node.live { border-color: rgba(16, 185, 129, 0.2); }
-.status-node.mock { border-color: rgba(251, 191, 36, 0.2); }
+/* council = full AI online (green) */
+.status-node.council  { border-color: rgba(16, 185, 129, 0.25); }
+/* connected = backend alive, no AI key (cyan) */
+.status-node.connected { border-color: rgba(6, 182, 212, 0.25); }
+/* offline = backend unreachable, mock mode (gold) */
+.status-node.offline  { border-color: rgba(251, 191, 36, 0.2); }
 
 .status-text {
   font-family: var(--font-mono);
@@ -132,8 +136,9 @@
   letter-spacing: 0.1em;
 }
 
-.status-node.live .status-text { color: var(--color-emerald); }
-.status-node.mock .status-text { color: var(--color-gold); }
+.status-node.council   .status-text { color: var(--color-emerald); }
+.status-node.connected .status-text { color: var(--color-cyan); }
+.status-node.offline   .status-text { color: var(--color-gold); }
 
 /* Pulse Animation */
 .pulse-container {
@@ -148,8 +153,9 @@
   border-radius: 50%;
 }
 
-.status-node.live .pulse-core { background: var(--color-emerald); }
-.status-node.mock .pulse-core { background: var(--color-gold); }
+.status-node.council   .pulse-core { background: var(--color-emerald); }
+.status-node.connected .pulse-core { background: var(--color-cyan); }
+.status-node.offline   .pulse-core { background: var(--color-gold); }
 
 .pulse-ring {
   position: absolute;
@@ -159,8 +165,9 @@
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.status-node.live .pulse-ring { border: 2px solid var(--color-emerald); }
-.status-node.mock .pulse-ring { border: 2px solid var(--color-gold); }
+.status-node.council   .pulse-ring { border: 2px solid var(--color-emerald); }
+.status-node.connected .pulse-ring { border: 2px solid var(--color-cyan); }
+.status-node.offline   .pulse-ring { border: 2px solid var(--color-gold); }
 
 @keyframes pulse {
   0% { transform: scale(0.5); opacity: 0.8; }
