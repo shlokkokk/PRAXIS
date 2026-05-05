@@ -66,7 +66,38 @@ A deterministic simulation layer that projects net worth, passive income, and de
 └── README.md             # The Blueprint
 ```
 
+## 🚀 LOCAL SETUP & EXECUTION (West Hacks Judges)
+
+To run the full Praxis environment locally, you will need two terminal windows.
+
+### 1. The Frontend (React/Vite)
+```bash
+# Install dependencies
+npm install
+
+# Start the dev server
+npm run dev
+```
+
+### 2. The AI Backend (FastAPI + Groq)
+*(Note: Requires a free Groq API key)*
+```bash
+# Navigate to the API folder
+cd api
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Create a .env file and add your Groq API key:
+echo "GROQ_API_KEY=your_key_here" > .env
+
+# Start the Python orchestration server
+uvicorn orchestrator:app --reload --port 8000
+```
+
+*(If the backend is not running, Praxis will automatically fallback to a lightning-fast deterministic mock engine so you can still experience the UI and scenarios without an API key!)*
+
 ---
 
-> **PROPRIETARY // PRIVATE ASSET**
-> *Developed for the mastery of financial timelines.*
+> **Built for West Hacks 2026**
+> *Developed to push Fintech Education forward for the 13-19 demographic.*
