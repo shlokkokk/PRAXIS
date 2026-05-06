@@ -132,7 +132,7 @@ Two ways to view your Financial Identity Matrix:
 **DNA View**: a structured breakdown of who you are financially:
 - **Archetype**: five profiles: Guardian, Builder, Explorer, Strategist, Visionary. Each with a distinct description, icon, and behavioral prediction.
 - **Portfolio Allocation**: auto-generated strategy bars based on your risk profile.
-- **Psychological Anchors**: four scored traits: Risk Tolerance, Delayed Gratification, Research Patience, Automation Comfort.
+- **Psychological Anchors**: six scored traits: Risk Tolerance, Delayed Gratification, Research Patience, Automation Comfort, Loss Aversion, and Future Focus.
 - **Mastery Radar**: a live hexagonal radar chart tracking six skill domains: Budgeting, Investing, Debt Management, Behavioral Awareness, Tax Optimization, Risk Management.
 
 ---
@@ -143,12 +143,12 @@ Real economic data embedded directly into your dashboard:
 
 | Data Source | What It Shows |
 |-------------|--------------|
-| **Alpha Vantage** | S&P 500 (SPY) price, daily change, % change |
-| **Alpha Vantage** | Bitcoin (BTC-USD) price, daily change, % change |
+| **Alpha Vantage** | S&P 500 (SPY) & Gold (GLD) price, daily change, % change |
+| **CoinGecko** | Bitcoin (BTC) & Ethereum (ETH) price, daily change, % change |
 | **FRED API** | Federal Funds Rate (current) |
 | **FRED API** | CPI Inflation (year-over-year %) |
 
-A green `LIVE` dot appears when data is confirmed fresh. A `SYNC` button manually triggers a refresh. 5-minute cache prevents rate-limiting on free tier keys.
+A green `LIVE` dot appears when data is confirmed fresh. A horizontally scrollable `SYNC` ticker manually triggers a refresh. A **10-minute resilient cache** and staggered API calling completely bypasses free-tier rate limits, ensuring data is always sticky and available.
 
 ---
 
@@ -283,7 +283,7 @@ PRAXIS/
 │   │   └── scenarios.ts     # All 4 scenarios + full decision trees
 │   │
 │   ├── hooks/
-│   │   └── useMarketData.ts # Live data fetching + 5min cache
+│   │   └── useMarketData.ts # Live data fetching + 10min cache + rate-limit bypass
 │   │
 │   ├── pages/
 │   │   ├── Landing.tsx      # Entry point
@@ -316,7 +316,7 @@ PRAXIS/
 | Backend | FastAPI + Uvicorn/Gunicorn | Async Python, production-ready |
 | AI Models | Llama 3.3 70B via Groq Cloud | Fast inference for multi-agent debate |
 | Schema | Pydantic v2 | Strict JSON contracts between agents and frontend |
-| Market Data | Alpha Vantage + FRED API | Real stock and macro data |
+| Market Data | Alpha Vantage + CoinGecko + FRED | Real stock, crypto, and macro data |
 | Frontend Host | Vercel | Auto-deploy from GitHub, global CDN |
 | Backend Host | Render | Python web service, zero config |
 
