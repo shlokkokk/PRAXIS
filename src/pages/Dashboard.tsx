@@ -199,8 +199,13 @@ export default function Dashboard() {
   const formatMoney = (n: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
 
+  useEffect(() => {
+    if (!userProfile || !financialTwin) {
+      navigate('/onboarding')
+    }
+  }, [userProfile, financialTwin, navigate])
+
   if (!userProfile || !financialTwin) {
-    navigate('/onboarding')
     return null
   }
 
@@ -380,7 +385,7 @@ export default function Dashboard() {
                 className="btn-danger" 
                 onClick={() => {
                   purgeStore()
-                  navigate('/landing')
+                  window.location.href = '/'
                 }}
                 onMouseEnter={() => audio.playHover()}
               >
