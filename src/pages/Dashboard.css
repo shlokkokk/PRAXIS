@@ -1150,8 +1150,8 @@
 .ticker-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 var(--space-5);
+  gap: 4px;
+  padding: 0 12px;
   height: 40px;
   transition: background 0.2s ease;
 }
@@ -1164,11 +1164,14 @@
   color: var(--color-text-tertiary);
   font-size: 9px;
   letter-spacing: 0.12em;
+  white-space: nowrap;
 }
 
 .ticker-price {
   color: var(--color-text-primary);
   font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .ticker-price.gold { color: var(--color-gold); }
@@ -1177,6 +1180,7 @@
 .ticker-change {
   font-family: var(--font-mono);
   font-size: 10px;
+  white-space: nowrap;
 }
 .ticker-change.up   { color: var(--color-emerald); }
 .ticker-change.down { color: var(--color-rose); }
