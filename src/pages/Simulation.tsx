@@ -193,37 +193,44 @@ export default function Simulation() {
 
           {(phase === 'decision' || phase === 'council' || phase === 'choosing') && currentNode && (
             <motion.div
-              key={`decision-${currentNodeIndex}`}
-              className="sim-decision-layout"
+              key={`decision-container-${currentNodeIndex}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
+              className="sim-step-container"
             >
-              <div className="sim-main-panel">
-                <DecisionPanel
-                  node={currentNode}
-                  onRequestCouncil={handleRequestCouncil}
-                  onChoose={handleMakeChoice}
-                  councilActive={phase === 'council' || phase === 'choosing'}
-                  selectedOption={selectedOption}
-                />
+              <div className="decision-header" style={{ marginBottom: 'var(--space-6)' }}>
+                <h2 className="decision-title">{currentNode.title}</h2>
+                <p className="decision-context">{currentNode.context}</p>
               </div>
 
-              {(phase === 'council' || phase === 'choosing') && (
-                <motion.div
-                  className="sim-council-panel"
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                  <CouncilPanel
-                    deliberation={councilDeliberation}
-                    isLoading={isCouncilLoading}
-                    onReady={() => setPhase('choosing')}
+              <div className="sim-decision-layout">
+                <div className="sim-main-panel">
+                  <DecisionPanel
+                    node={currentNode}
+                    onRequestCouncil={handleRequestCouncil}
+                    onChoose={handleMakeChoice}
+                    councilActive={phase === 'council' || phase === 'choosing'}
+                    selectedOption={selectedOption}
                   />
-                </motion.div>
-              )}
+                </div>
+
+                {(phase === 'council' || phase === 'choosing') && (
+                  <motion.div
+                    className="sim-council-panel"
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >
+                    <CouncilPanel
+                      deliberation={councilDeliberation}
+                      isLoading={isCouncilLoading}
+                      onReady={() => setPhase('choosing')}
+                    />
+                  </motion.div>
+                )}
+              </div>
             </motion.div>
           )}
 

@@ -15,11 +15,6 @@ const RISK_COLORS = { low: 'var(--color-emerald)', medium: 'var(--color-gold)', 
 export default function DecisionPanel({ node, onRequestCouncil, onChoose, councilActive, selectedOption }: Props) {
   return (
     <div className="decision-panel">
-      <div className="decision-header">
-        <h2 className="decision-title">{node.title}</h2>
-        <p className="decision-context">{node.context}</p>
-      </div>
-
       <div className="decision-options">
         {node.options.map((option, i) => (
           <motion.button
