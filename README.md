@@ -41,19 +41,32 @@
 
 ---
 
-## The Problem Nobody Wants to Talk About
-
-**81% of young people want financial guidance. 19% actually get it.**
-
-Here's what happens to the other 62%: they learn by losing.
-
-They take on credit card debt at 24% APR because nobody explained compound interest the way that actually sticks. They don't invest in their 20s because the stock market "seems risky." They panic-sell during a downturn and lock in losses that take years to recover from. They get a raise and lifestyle inflate instead of building wealth.
-
-By the time they figure it out, they've paid an expensive, irreversible real-world tuition.
+## 📊 The Scale of the Crisis
 
 **Financial literacy isn't a knowledge problem. It's a practice problem.**
 
-You can't get better at something you've never done. PRAXIS gives you the reps, without the consequences.
+The world is facing a silent financial crisis. While the global economy becomes exponentially more complex, our collective ability to navigate it is actually declining. By the time most people figure it out, they've paid an expensive, irreversible real-world tuition.
+
+### 🌍 The Global Reality
+- **3.5 Billion Adults** are financially illiterate — that's 67% of the entire global population.
+- **Only 1 in 3 Adults** globally understands compound interest, the single most important concept in building wealth.
+- **The Financial Literacy Market** is growing at 11.7% annually, hitting $2.8B in 2025 — because the problem is getting worse, not better.
+
+### 🧬 Gen Z: Starting in the Red
+- **38% Competency Score**: The lowest score of any generation ever recorded (TIAA/GFLEC, 2025).
+- **45% of Gen Z** receive zero formal financial education until adulthood.
+- **34%** learn about money from TikTok and YouTube; only **1 in 3 students** say their school is doing enough.
+- **$3,000**: The average credit card balance already carried by Gen Z consumers.
+
+### 💸 The Human & Economic Cost
+- **$1,819 Per Year**: The average amount drained from an individual's wallet due to bad financial decisions.
+- **$18.59 Trillion**: Total US household debt in 2025, an all-time record.
+- **69% of People** report that financial uncertainty has made them clinically depressed or anxious.
+- **Only 30%** of Americans could cover a $1,000 emergency from their savings.
+
+---
+
+**You can't get better at something you've never done.** PRAXIS gives you the reps you need to build instinct, without the real-world consequences.
 
 ---
 
@@ -350,7 +363,7 @@ Every financial decision you've ever avoided making. Make it here first.
 
 **Built for West Hacks 2026 · Fintech & Education Track**
 
-*Made by someone who believes financial literacy should be the default, not the exception.*
+**Made by Shlok Shah** — *because financial literacy should be the default, not the exception.*
 
 <br />
 
