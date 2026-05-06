@@ -31,9 +31,14 @@ export default function AssetCluster({ radius, count, color, size, speed, spread
     }))
   }, [count, spread])
 
-  useFrame((state) => {
-    if (groupRef.current && !hoveredElement) {
-      groupRef.current.rotation.y = state.clock.getElapsedTime() * speed
+  const timeRef = useRef(0)
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      if (!hoveredElement) {
+        timeRef.current += delta * speed
+      }
+      groupRef.current.rotation.y = timeRef.current
     }
   })
 

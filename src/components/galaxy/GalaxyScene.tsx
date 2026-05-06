@@ -20,6 +20,8 @@ const COLORS = {
 
 export default function GalaxyScene() {
   const { financialTwin, mastery, userProfile, hoveredElement } = useStore()
+  const sceneRef = useRef<THREE.Group>(null)
+  const rotationTimeRef = useRef(0)
   
   if (!financialTwin) return null
 
@@ -47,9 +49,18 @@ export default function GalaxyScene() {
     angle: (i / 6) * Math.PI * 2,
     radius: 3.5 + (i * 0.2),
   }))
+  
+  useFrame((_, delta) => {
+    if (!hoveredElement) {
+      rotationTimeRef.current += delta * 0.1 // Adjust rotation speed here
+    }
+    if (sceneRef.current) {
+      sceneRef.current.rotation.y = rotationTimeRef.current
+    }
+  })
 
   return (
-    <group>
+    <group ref={sceneRef}>
       <ambientLight intensity={0.1} />
       <pointLight position={[0, 0, 0]} intensity={2} color={COLORS.core} />
       <directionalLight position={[10, 10, 10]} intensity={0.5} />
@@ -109,9 +120,15 @@ function MasteryMoon({ label, score, angle, radius, turbulence }: any) {
   const meshRef = useRef<THREE.Group>(null)
   const { setHoveredElement, hoveredElement } = useStore()
   
-  useFrame((state) => {
-    if (meshRef.current && !hoveredElement) {
-      const t = state.clock.getElapsedTime() * (0.2 + turbulence)
+  const timeRef = useRef(0)
+  
+  useFrame((state, delta) => {
+    if (meshRef.current) {
+      if (!hoveredElement) {
+        timeRef.current += delta * (0.2 + turbulence)
+      }
+      
+      const t = timeRef.current
       const currentAngle = angle + t
       meshRef.current.position.x = Math.cos(currentAngle) * radius
       meshRef.current.position.z = Math.sin(currentAngle) * radius
@@ -156,11 +173,17 @@ function MasteryMoon({ label, score, angle, radius, turbulence }: any) {
 
 function DebtGravity({ coreScale }: any) {
   const ringRef = useRef<THREE.Mesh>(null)
+  const { hoveredElement } = useStore()
   
-  useFrame((state) => {
+  const timeRef = useRef(0)
+  
+  useFrame((state, delta) => {
     if (ringRef.current) {
-      ringRef.current.rotation.z = state.clock.getElapsedTime() * 0.5
-      ringRef.current.rotation.y = Math.sin(state.clock.getElapsedTime() * 0.3) * 0.2
+      if (!hoveredElement) {
+        timeRef.current += delta
+      }
+      ringRef.current.rotation.z = timeRef.current * 0.5
+      ringRef.current.rotation.y = Math.sin(timeRef.current * 0.3) * 0.2
     }
   })
 

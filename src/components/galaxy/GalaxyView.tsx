@@ -22,8 +22,7 @@ export default function GalaxyView() {
           minDistance={5} 
           maxDistance={40} 
           maxPolarAngle={Math.PI / 2 + 0.4}
-          autoRotate={!hoveredElement}
-          autoRotateSpeed={0.3}
+          autoRotate={false}
         />
         
         <Suspense fallback={null}>
