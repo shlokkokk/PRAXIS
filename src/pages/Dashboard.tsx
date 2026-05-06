@@ -340,17 +340,28 @@ export default function Dashboard() {
       {showColdStartBanner && (
         <motion.div
           className="cold-start-banner"
-          initial={{ opacity: 0, y: -12 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.4 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
         >
+          <div className="cold-start-track" />
           <div className="cold-start-inner">
-            <span className="cold-start-dot" />
-            <span className="cold-start-text">
-              Backend is starting up — this can take up to 30s. Hang tight.
-            </span>
-            <button className="cold-start-close" onClick={() => setShowColdStartBanner(false)}>✕</button>
+            <div className="cold-start-icon-wrap">
+              <AlertTriangle size={14} strokeWidth={2.5} />
+            </div>
+            <div className="cold-start-body">
+              <span className="cold-start-label">BACKEND WAKING UP</span>
+              <span className="cold-start-text">Our server is just waking up — scenarios, live market data, and AI decisions will all be ready in about 30 seconds.</span>
+            </div>
+            <div className="cold-start-dot-group">
+              <span className="cold-start-dot" />
+              <span className="cold-start-dot" style={{ animationDelay: '0.3s' }} />
+              <span className="cold-start-dot" style={{ animationDelay: '0.6s' }} />
+            </div>
+            <button className="cold-start-close" onClick={() => setShowColdStartBanner(false)}>
+              <X size={12} strokeWidth={2.5} />
+            </button>
           </div>
         </motion.div>
       )}
@@ -423,65 +434,63 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              style={{
-                display: 'flex',
-                gap: 'var(--space-6)',
-                justifyContent: 'center',
-                padding: 'var(--space-3) var(--space-6)',
-                background: 'rgba(5, 5, 16, 0.4)',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                borderRadius: 'var(--radius-full)',
-                marginBottom: 'var(--space-8)',
-                fontSize: 'var(--text-xs)',
-                fontWeight: 600,
-                letterSpacing: '0.05em',
-                flexWrap: 'wrap'
-              }}
             >
               {marketLoading ? (
-                <span style={{ color: 'var(--color-text-tertiary)' }}>SYNCING WITH MARKETS...</span>
+                <span className="ticker-syncing">
+                  <RefreshCw size={11} style={{ animation: 'spin 1.2s linear infinite' }} />
+                  SYNCING WITH MARKETS...
+                </span>
               ) : (
                 <>
+                  {/* No data fallback */}
+                  {!marketData.sp500 && !marketData.btc && marketData.fedRate === null && marketData.inflation === null && (
+                    <span className="ticker-no-data">
+                      Market data unavailable — hit SYNC to try again
+                    </span>
+                  )}
+
                   {marketData.sp500 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                      <span style={{ color: 'var(--color-text-secondary)' }}>S&P 500</span>
-                      <span>${marketData.sp500.price.toFixed(2)}</span>
-                      <span style={{ color: marketData.sp500.change >= 0 ? 'var(--color-emerald)' : 'var(--color-rose)' }}>
+                    <div className="ticker-item">
+                      <span className="ticker-label">S&P 500</span>
+                      <span className="ticker-price">${marketData.sp500.price.toFixed(2)}</span>
+                      <span className={`ticker-change ${marketData.sp500.change >= 0 ? 'up' : 'down'}`}>
                         {marketData.sp500.change >= 0 ? '▲' : '▼'} {Math.abs(marketData.sp500.changePercent).toFixed(2)}%
                       </span>
                     </div>
                   )}
+                  {marketData.sp500 && marketData.btc && <div className="ticker-divider" />}
                   {marketData.btc && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                      <span style={{ color: 'var(--color-text-secondary)' }}>BTC</span>
-                      <span>${marketData.btc.price.toFixed(2)}</span>
-                      <span style={{ color: marketData.btc.change >= 0 ? 'var(--color-emerald)' : 'var(--color-rose)' }}>
+                    <div className="ticker-item">
+                      <span className="ticker-label">BTC</span>
+                      <span className="ticker-price">${marketData.btc.price.toFixed(2)}</span>
+                      <span className={`ticker-change ${marketData.btc.change >= 0 ? 'up' : 'down'}`}>
                         {marketData.btc.change >= 0 ? '▲' : '▼'} {Math.abs(marketData.btc.changePercent).toFixed(2)}%
                       </span>
                     </div>
                   )}
+                  {marketData.fedRate !== null && <div className="ticker-divider" />}
                   {marketData.fedRate !== null && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                      <span style={{ color: 'var(--color-text-secondary)' }}>FED RATE</span>
-                      <span style={{ color: 'var(--color-gold)' }}>{marketData.fedRate.toFixed(2)}%</span>
+                    <div className="ticker-item">
+                      <span className="ticker-label">FED RATE</span>
+                      <span className="ticker-price gold">{marketData.fedRate.toFixed(2)}%</span>
                     </div>
                   )}
+                  {marketData.inflation !== null && <div className="ticker-divider" />}
                   {marketData.inflation !== null && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                      <span style={{ color: 'var(--color-text-secondary)' }}>INFLATION</span>
-                      <span style={{ color: 'var(--color-rose)' }}>{marketData.inflation.toFixed(1)}%</span>
+                    <div className="ticker-item">
+                      <span className="ticker-label">INFLATION</span>
+                      <span className="ticker-price rose">{marketData.inflation.toFixed(1)}%</span>
                     </div>
                   )}
-                  
-                  <div className="ticker-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+
+                  <div className="ticker-actions">
                     {marketData.isLive && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-emerald)', fontSize: '10px' }}>
-                        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--color-emerald)', boxShadow: '0 0 8px var(--color-emerald)' }} />
+                      <div className="ticker-live-badge">
+                        <span className="ticker-live-dot" />
                         LIVE
                       </div>
                     )}
-                    
-                    <button 
+                    <button
                       className={`btn-ticker-refresh ${tickerCooldown ? 'cooldown' : ''}`}
                       onClick={() => {
                         const success = refreshMarket()
@@ -494,21 +503,8 @@ export default function Dashboard() {
                       }}
                       onMouseEnter={() => audio.playHover()}
                       disabled={marketRefreshing}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: tickerCooldown ? 'var(--color-rose)' : 'var(--color-text-tertiary)',
-                        cursor: 'pointer',
-                        padding: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '10px',
-                        transition: 'all 0.2s ease',
-                        opacity: marketRefreshing ? 0.5 : 1
-                      }}
                     >
-                      <RefreshCw size={12} className={marketRefreshing ? 'spin' : ''} style={{ animation: marketRefreshing ? 'spin 1s linear infinite' : 'none' }} />
+                      <RefreshCw size={11} style={{ animation: marketRefreshing ? 'spin 1s linear infinite' : 'none' }} />
                       {tickerCooldown ? 'COOLING DOWN...' : 'SYNC'}
                     </button>
                   </div>
