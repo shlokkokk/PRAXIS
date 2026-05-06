@@ -450,10 +450,17 @@ export default function Dashboard() {
                 </span>
               ) : (
                 <>
-                  {/* No data fallback */}
-                  {!marketData.sp500 && !marketData.btc && marketData.fedRate === null && marketData.inflation === null && (
+                  {/* No data fallback at all */}
+                  {!marketData.sp500 && !marketData.btc && !marketData.eth && !marketData.gold && marketData.fedRate === null && marketData.inflation === null && (
                     <span className="ticker-no-data">
                       Market data unavailable — hit SYNC to try again
+                    </span>
+                  )}
+
+                  {/* Partial data warning (Alpha Vantage Rate Limit) */}
+                  {(!marketData.sp500 && !marketData.btc) && (marketData.fedRate !== null) && (
+                    <span className="ticker-no-data" style={{ paddingRight: 'var(--space-4)', borderRight: '1px solid rgba(255,255,255,0.05)' }}>
+                      Market Quotes Restricted (Rate Limit)
                     </span>
                   )}
 
@@ -476,14 +483,34 @@ export default function Dashboard() {
                       </span>
                     </div>
                   )}
-                  {marketData.fedRate !== null && <div className="ticker-divider" />}
+                  {marketData.btc && marketData.eth && <div className="ticker-divider" />}
+                  {marketData.eth && (
+                    <div className="ticker-item">
+                      <span className="ticker-label">ETH</span>
+                      <span className="ticker-price">${marketData.eth.price.toFixed(2)}</span>
+                      <span className={`ticker-change ${marketData.eth.change >= 0 ? 'up' : 'down'}`}>
+                        {marketData.eth.change >= 0 ? '▲' : '▼'} {Math.abs(marketData.eth.changePercent).toFixed(2)}%
+                      </span>
+                    </div>
+                  )}
+                  {marketData.eth && marketData.gold && <div className="ticker-divider" />}
+                  {marketData.gold && (
+                    <div className="ticker-item">
+                      <span className="ticker-label">GOLD</span>
+                      <span className="ticker-price">${marketData.gold.price.toFixed(2)}</span>
+                      <span className={`ticker-change ${marketData.gold.change >= 0 ? 'up' : 'down'}`}>
+                        {marketData.gold.change >= 0 ? '▲' : '▼'} {Math.abs(marketData.gold.changePercent).toFixed(2)}%
+                      </span>
+                    </div>
+                  )}
+                  {(marketData.gold || marketData.eth || marketData.btc || marketData.sp500) && marketData.fedRate !== null && <div className="ticker-divider" />}
                   {marketData.fedRate !== null && (
                     <div className="ticker-item">
                       <span className="ticker-label">FED RATE</span>
                       <span className="ticker-price gold">{marketData.fedRate.toFixed(2)}%</span>
                     </div>
                   )}
-                  {marketData.inflation !== null && <div className="ticker-divider" />}
+                  {marketData.fedRate !== null && marketData.inflation !== null && <div className="ticker-divider" />}
                   {marketData.inflation !== null && (
                     <div className="ticker-item">
                       <span className="ticker-label">INFLATION</span>

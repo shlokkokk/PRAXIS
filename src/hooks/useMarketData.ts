@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { API_URL } from '../config'
 const AV_KEY = 'IFA9SY7DHQTY0LMN'
 const CACHE_KEY = 'praxis-market-cache'
-const CACHE_MS = 5 * 60 * 1000 // 5 minutes
+const CACHE_MS = 10 * 60 * 1000 // 10 minutes
 
 export interface MarketQuote {
   symbol: string
@@ -15,6 +15,8 @@ export interface MarketQuote {
 export interface MarketData {
   sp500: MarketQuote | null
   btc: MarketQuote | null
+  eth: MarketQuote | null
+  gold: MarketQuote | null
   fedRate: number | null
   inflation: number | null
   lastUpdated: number | null
@@ -53,7 +55,7 @@ async function fetchMacroData(): Promise<{ fedRate: number | null; inflation: nu
 
 export function useMarketData() {
   const [data, setData] = useState<MarketData>({
-    sp500: null, btc: null, fedRate: null, inflation: null, lastUpdated: null, isLive: false
+    sp500: null, btc: null, eth: null, gold: null, fedRate: null, inflation: null, lastUpdated: null, isLive: false
   })
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -79,23 +81,28 @@ export function useMarketData() {
     if (force) setLoading(true)
 
     try {
-      const [sp500, btc, macro] = await Promise.all([
+      const [sp500, btc, eth, gold, macro] = await Promise.all([
         fetchQuote('SPY', 'S&P 500'),
         fetchQuote('BTC-USD', 'Bitcoin'),
+        fetchQuote('ETH-USD', 'Ethereum'),
+        fetchQuote('GLD', 'Gold'),
         fetchMacroData(),
       ])
 
-      const newData: MarketData = {
-        sp500,
-        btc,
-        fedRate: macro.fedRate,
-        inflation: macro.inflation,
-        lastUpdated: Date.now(),
-        isLive: !!(sp500 || btc),
-      }
-
-      setData(newData)
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify(newData)) } catch { /* ignore */ }
+      setData(prev => {
+        const newData: MarketData = {
+          sp500: sp500 || prev.sp500,
+          btc: btc || prev.btc,
+          eth: eth || prev.eth,
+          gold: gold || prev.gold,
+          fedRate: macro.fedRate || prev.fedRate,
+          inflation: macro.inflation || prev.inflation,
+          lastUpdated: Date.now(),
+          isLive: !!(sp500 || btc || eth || gold || prev.sp500 || prev.btc || prev.eth || prev.gold),
+        }
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(newData)) } catch { /* ignore */ }
+        return newData
+      })
     } finally {
       setLoading(false)
       setIsRefreshing(false)
