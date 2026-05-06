@@ -61,6 +61,18 @@ const QUESTIONS = [
     ],
     scale: ['Loss Sensitive', 'Loss Tolerant'],
   },
+  {
+    id: 'future',
+    question: 'How far into the future do you typically plan your finances?',
+    options: [
+      { value: 1, label: 'I focus on getting through the week' },
+      { value: 2, label: 'I plan my budget a few months ahead' },
+      { value: 3, label: 'I\'m saving for goals in the next 1-3 years' },
+      { value: 4, label: 'I have a clear 5-10 year roadmap' },
+      { value: 5, label: 'I\'m planning for my life-long legacy' },
+    ],
+    scale: ['Short-term', 'Long-term'],
+  },
 ]
 
 interface Props {

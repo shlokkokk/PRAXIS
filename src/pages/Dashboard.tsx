@@ -644,6 +644,14 @@ export default function Dashboard() {
                             <span className="label">Automation</span>
                             <span className="value">{userProfile.moneyPersonality.automationComfort}/5</span>
                           </div>
+                          <div className="trait-chip">
+                            <span className="label">Loss Aversion</span>
+                            <span className="value">{userProfile.moneyPersonality.lossAversion || 3}/5</span>
+                          </div>
+                          <div className="trait-chip">
+                            <span className="label">Future Focus</span>
+                            <span className="value">{userProfile.moneyPersonality.futureFocus || 3}/5</span>
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -132,6 +132,7 @@ function buildMoneyPersonality(answers: number[]): MoneyPersonality {
     researchPatience: answers[2] || 3,
     automationComfort: answers[3] || 3,
     lossAversion: answers[4] || 3,
+    futureFocus: answers[5] || 3,
     archetype: calculateArchetype(answers),
   }
 }

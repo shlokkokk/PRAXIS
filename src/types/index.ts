@@ -17,6 +17,7 @@ export interface MoneyPersonality {
   researchPatience: number
   automationComfort: number
   lossAversion: number
+  futureFocus: number
   archetype: PersonalityArchetype
 }
 
