@@ -141,7 +141,7 @@ export default function Dashboard() {
   const [showGlossary, setShowGlossary] = useState(false)
   const [apiStatus, setApiStatus] = useState<'offline' | 'connected' | 'council'>('offline')
   const [showColdStartBanner, setShowColdStartBanner] = useState(false)
-  const [cooldownSeconds, setCooldownSeconds] = useState(0)
+  const [cooldownWarning, setCooldownWarning] = useState<number | null>(null)
   const { data: marketData, loading: marketLoading, refresh: refreshMarket, isRefreshing: marketRefreshing } = useMarketData()
 
   useEffect(() => {
@@ -174,14 +174,6 @@ export default function Dashboard() {
     const interval = setInterval(checkServer, 8000)
     return () => { clearInterval(interval); clearTimeout(bannerTimer) }
   }, [])
-
-  // Ticker Cooldown Countdown
-  useEffect(() => {
-    if (cooldownSeconds > 0) {
-      const timer = setTimeout(() => setCooldownSeconds(prev => prev - 1), 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [cooldownSeconds])
 
   // Self-healing: Recalibrate Mastery if state is corrupted (e.g. score > 100)
   useEffect(() => {
@@ -526,24 +518,25 @@ export default function Dashboard() {
                       </div>
                     )}
                     <button
-                      className={`btn-ticker-refresh ${cooldownSeconds > 0 ? 'cooldown' : ''}`}
+                      className={`btn-ticker-refresh ${cooldownWarning !== null ? 'cooldown' : ''}`}
                       onClick={() => {
                         const success = refreshMarket()
                         if (!success) {
                           if (marketData.lastUpdated) {
                             const remaining = Math.max(0, 60 - Math.floor((Date.now() - marketData.lastUpdated) / 1000))
-                            setCooldownSeconds(remaining)
+                            setCooldownWarning(remaining)
+                            setTimeout(() => setCooldownWarning(null), 2000)
                           }
                         } else {
                           audio.playClick()
-                          setCooldownSeconds(0)
+                          setCooldownWarning(null)
                         }
                       }}
                       onMouseEnter={() => audio.playHover()}
                       disabled={marketRefreshing}
                     >
                       <RefreshCw size={11} style={{ animation: marketRefreshing ? 'spin 1s linear infinite' : 'none' }} />
-                      {cooldownSeconds > 0 ? `WAIT ${cooldownSeconds}S` : 'SYNC'}
+                      {cooldownWarning !== null ? `WAIT ${cooldownWarning}S` : 'SYNC'}
                     </button>
                   </div>
                 </>
