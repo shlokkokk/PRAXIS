@@ -1133,8 +1133,18 @@
     0 0 0 1px rgba(255, 255, 255, 0.03),
     0 4px 24px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   position: relative;
+  -webkit-overflow-scrolling: touch;
+}
+
+.market-ticker::-webkit-scrollbar {
+  display: none;
+}
+.market-ticker {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Subtle shimmer on the top edge */
@@ -1151,9 +1161,10 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0 12px;
+  padding: 0 8px;
   height: 40px;
   transition: background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .ticker-item:hover {
@@ -1200,6 +1211,7 @@
   padding-left: var(--space-4);
   border-left: 1px solid rgba(255, 255, 255, 0.05);
   height: 40px;
+  flex-shrink: 0;
 }
 
 .ticker-live-badge {
