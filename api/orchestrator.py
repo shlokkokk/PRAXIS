@@ -52,6 +52,10 @@ class CouncilOrchestrator:
         
         Generate exactly 3 rebuttals where one agent directly challenges another agent's recommendation.
         For example, the Grower might challenge the Conservator for being too timid.
+        CRITICAL RULES:
+        1. Use ONLY these exact strings for 'agentId' and 'targetAgentId': 'conservator', 'grower', 'behaviorist'.
+        2. An agent MUST NOT rebut themselves (agentId and targetAgentId must be different).
+        3. Ensure variety: try to have each agent participate at least once.
         """
         
         # We'll use a temporary Pydantic model for the Groq generation

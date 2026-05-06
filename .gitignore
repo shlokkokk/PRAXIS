@@ -32,4 +32,7 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
-scratch/
+# Media
+PRAXIS-demo-video.mp4
+thumbnail.png
+westhacks-thumbnail.png

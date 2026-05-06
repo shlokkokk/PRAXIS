@@ -55,7 +55,13 @@ SCHEMA:
             result_str = response.choices[0].message.content
             # The model is instructed to return JSON, parse it and validate against Pydantic
             data = json.loads(result_str)
-            return schema_class(**data)
+            obj = schema_class(**data)
+            
+            # Post-processing: Ensure IDs match internal values to prevent frontend breaks
+            if hasattr(obj, 'agentId') and self.agent_id:
+                setattr(obj, 'agentId', self.agent_id)
+                
+            return obj
             
         except Exception as e:
             print(f"Error generating JSON for {self.agent_id}: {str(e)}")

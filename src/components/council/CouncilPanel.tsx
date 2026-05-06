@@ -13,6 +13,7 @@ const AGENT_STYLES: Record<string, { color: string; icon: string; gradient: stri
   conservator: { color: '#06b6d4', icon: '🛡️', gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)' },
   grower: { color: '#10b981', icon: '📈', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
   behaviorist: { color: '#8b5cf6', icon: '🧠', gradient: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' },
+  fallback: { color: '#94a3b8', icon: '🤖', gradient: 'linear-gradient(135deg, #94a3b8, #64748b)' },
 }
 
 type Tab = 'opinions' | 'rebuttals' | 'synthesis'
@@ -93,7 +94,7 @@ export default function CouncilPanel({ deliberation, isLoading, onReady }: Props
           {activeTab === 'opinions' && (
             <motion.div key="opinions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="council-opinions">
               {deliberation.agents.map((agent, i) => {
-                const style = AGENT_STYLES[agent.agentId] || AGENT_STYLES.conservator
+                const style = AGENT_STYLES[agent.agentId.toLowerCase()] || AGENT_STYLES.fallback
                 if (i > revealIndex) return null
                 return (
                   <motion.div
@@ -129,8 +130,8 @@ export default function CouncilPanel({ deliberation, isLoading, onReady }: Props
           {activeTab === 'rebuttals' && (
             <motion.div key="rebuttals" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="council-rebuttals">
               {deliberation.rebuttals.map((r, i) => {
-                const style = AGENT_STYLES[r.agentId] || AGENT_STYLES.conservator
-                const targetStyle = AGENT_STYLES[r.targetAgentId] || AGENT_STYLES.conservator
+                const style = AGENT_STYLES[r.agentId.toLowerCase()] || AGENT_STYLES.fallback
+                const targetStyle = AGENT_STYLES[r.targetAgentId.toLowerCase()] || AGENT_STYLES.fallback
                 return (
                   <div key={i} className="rebuttal-card card">
                     <div className="rebuttal-header">
