@@ -33,7 +33,7 @@ export default function AssetCluster({ radius, count, color, size, speed, spread
 
   const timeRef = useRef(0)
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (groupRef.current) {
       if (!hoveredElement) {
         timeRef.current += delta * speed

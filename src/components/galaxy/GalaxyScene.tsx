@@ -122,7 +122,7 @@ function MasteryMoon({ label, score, angle, radius, turbulence }: any) {
   
   const timeRef = useRef(0)
   
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (meshRef.current) {
       if (!hoveredElement) {
         timeRef.current += delta * (0.2 + turbulence)
@@ -177,7 +177,7 @@ function DebtGravity({ coreScale }: any) {
   
   const timeRef = useRef(0)
   
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (ringRef.current) {
       if (!hoveredElement) {
         timeRef.current += delta
