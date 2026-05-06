@@ -61,7 +61,7 @@ The world is facing a silent financial crisis. While the global economy becomes 
 ### 💸 The Human & Economic Cost
 - **$1,819 Per Year**: The average amount drained from an individual's wallet due to bad financial decisions.
 - **$18.59 Trillion**: Total US household debt in 2025, an all-time record.
-- **69% of People** report that financial uncertainty has made them clinically depressed or anxious.
+- **69% of People** report that financial uncertainty has made them depressed or anxious.
 - **Only 30%** of Americans could cover a $1,000 emergency from their savings.
 
 ---
